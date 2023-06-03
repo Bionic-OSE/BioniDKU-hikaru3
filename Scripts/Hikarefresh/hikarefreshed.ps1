@@ -11,3 +11,5 @@ $ntcm = (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion
 if ($nr -eq 1 -and $ncp -eq 1 -and $ntcm -eq 1) {
 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Command Processor" -Name Autorun -Value "cls" -Type String
 }
+
+Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "DisplayName" -Value "BioniDKU" -Force
