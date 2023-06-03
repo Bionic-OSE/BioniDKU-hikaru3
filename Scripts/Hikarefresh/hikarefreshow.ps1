@@ -1,4 +1,6 @@
 # Hikaru-chan on-demand updater - (c) Bionic Butter
+$update = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").UpdateAvailable
+if ($update -ne 1) {exit}
 
 $host.UI.RawUI.WindowTitle = "BioniDKU Quick Menu for OSTE Updater"
 function Show-Branding {
@@ -26,7 +28,7 @@ function Start-Hikarefreshing($hv) {
 	}
 	Start-Process 7za -Wait -NoNewWindow -ArgumentList "x $env:SYSTEMDRIVE\Bionic\Hikaru.7z -pBioniDKU -o$env:SYSTEMDRIVE\Bionic -aoa"
 	while ($hv -eq 1) {
-		Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\wget.exe -Wait -NoNewWindow -ArgumentList "https://github.com/Bionic-OSE/BioniDKU-hikaru/releases/latest/download/Hikare.7z" -WorkingDirectory "$env:SYSTEMDRIVE\Bionic"
+		Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\wget.exe -Wait -NoNewWindow -ArgumentList "https://github.com/Bionic-OSE/BioniDKU-hikaru3/releases/latest/download/Hikare.7z" -WorkingDirectory "$env:SYSTEMDRIVE\Bionic"
 		if (Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikare.7z" -PathType Leaf) {
 			Start-Process powershell -ArgumentList "-Command $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshard.ps1"
 			break
@@ -35,12 +37,18 @@ function Start-Hikarefreshing($hv) {
 			Write-Host -ForegroundColor White "Did the transfer fail?" -n; Write-Host " Retrying..."
 		}
 	}
+	if ($hv -ne 1) {
+		& $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshed.ps1
+		Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "UpdateAvailable" -Value 0 -Type DWord -Force
+	}
 	. $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarinfo.ps1
-	Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "Version" -Value "22108.$version" -Force
+	Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "Version" -Value "22109.$version" -Force
+	Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "Revision" -Value "23030.$revision" -Force
 	Remove-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikarefresh\HikarinFOLD.ps1" -Force
 	Rename-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarinfo.ps1" -NewName HikarinFOLD.ps1
 	exit
 }
+
 
 . $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarinfo.ps1
 $versionremote = $version
@@ -48,8 +56,9 @@ $minbaseremote = $minbase
 . $env:SYSTEMDRIVE\Bionic\Hikarefresh\HikarinFOLD.ps1
 Write-Host "Version: " -ForegroundColor White -n; Write-Host "$versionremote" -n; Write-Host " (You have: " -n; Write-Host "$version)"
 . $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarinfo.ps1
-Write-Host "Package size: $size"
-Write-Host "Update information: $descr"
+Write-Host "Package size: " -ForegroundColor White -n; Write-Host "$size"
+Write-Host "Update information: " -ForegroundColor White -n; Write-Host "$descr"
+. $env:SYSTEMDRIVE\Bionic\Hikarefresh\HikarinFOLD.ps1
 
 Write-Host " "
 Write-Host "Select one of the following actions:" -ForegroundColor White
