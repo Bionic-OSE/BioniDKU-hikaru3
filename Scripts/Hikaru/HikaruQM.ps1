@@ -75,7 +75,6 @@ function Input-SystemColor {
 	# SuwakoColors - (c) Bionic Butter
 	while ($true) {
 		Show-Branding
-		Write-Host " "
 		Write-Host "Input your desired color in R G and B, separated by spaces" -ForegroundColor White
 		Write-Host "(If you input nothing, the input will be inteperted as 0 0 0. Input 'b' to go back)"
 		Write-Host "> " -n; $clri = Read-Host
@@ -98,7 +97,7 @@ while ($true) {
 	switch ($unem) {
 		{$unem -like "0"} {exit}
 		{$unem -like "1"} {Confirm-RestartShell}
-		{$unem -like "1"} {Input-SystemColor}
+		{$unem -like "2"} {Input-SystemColor}
 		{$unem -like "9"} {
 			if ($update -eq 1) {
 				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshow.exe
