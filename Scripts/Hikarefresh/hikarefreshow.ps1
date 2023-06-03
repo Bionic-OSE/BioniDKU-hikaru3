@@ -54,7 +54,7 @@ function Start-Hikarefreshing($hv,$rv) {
 	}
 	. $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarinfo.ps1
 	Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "Version" -Value "22109.$version" -Force
-	Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "Revision" -Value "23030.$revision" -Force
+	Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "Revision" -Value "23020.$revision" -Force
 	Remove-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikarefresh\HikarinFOLD.ps1" -Force
 	Rename-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarinfo.ps1" -NewName HikarinFOLD.ps1
 	exit

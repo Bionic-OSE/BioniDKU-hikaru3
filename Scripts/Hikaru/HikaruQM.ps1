@@ -67,7 +67,7 @@ function Set-SystemColor {
 		Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\DefaultColors\Standard" -Name Hilight -Value "0x$rlc0" -Type DWord -Force
 		Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Accent" -Name AccentColorMenu -Value "0x$rlcx" -Type DWord -Force
 		Write-Host "SUCCESS" -ForegroundColor Green
-		Write-Host "For the highlight color change to take effect, either lock your PC or do Ctrl+Alt+Delete, and come back in." -ForegroundColor Yellow
+		Write-Host "For the highlight color change to take effect, either lock your device or do Ctrl+Alt+Delete, and come back in." -ForegroundColor Yellow
 		Start-Sleep -Seconds 5
 	} else {}
 }

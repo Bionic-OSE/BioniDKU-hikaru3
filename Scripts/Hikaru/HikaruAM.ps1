@@ -103,7 +103,7 @@ while($menu -eq $true) {
 	Write-Host "Your selection: " -n; $unem = Read-Host
 	switch ($unem) {
 		{$unem -like "0"} {exit}
-		{$unem -like "1"}  Confirm-RestartShell}
+		{$unem -like "1"} {Confirm-RestartShell}
 		{$unem -like "2"} {Switch-Lockdown}
 		{$unem -like "3"} {Start-CommandPrompt}
 		{$unem -like "9"} {
