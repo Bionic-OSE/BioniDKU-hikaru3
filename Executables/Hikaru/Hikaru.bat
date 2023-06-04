@@ -14,8 +14,8 @@
 ::dAsiuh18IRvcCxnZtBJQ
 ::cRYluBh/LU+EWAnk
 ::YxY4rhs+aU+IeA==
-::cxY6rQJ7JhzQF1fEqQJieEsaHkrScjva
-::ZQ05rAF9IBncCkqN+0xwdVsGHFTMbiXqSOV8
+::cxY6rQJ7JhzQF1fEqQJieEsaH0rScjva
+::ZQ05rAF9IBncCkqN+0xwdVsGHFTMbyXqSOV8
 ::ZQ05rAF9IAHYFVzEqQJQ
 ::eg0/rx1wNQPfEVWB+kM9LVsJDGQ=
 ::fBEirQZwNQPfEVWB+kM9LVsJDGQ=
@@ -26,7 +26,7 @@
 ::ZQ0/vhVqMQ3MEVWAtB9wSA==
 ::Zg8zqx1/OA3MEVWAtB9wSA==
 ::dhA7pRFwIByZRRnk
-::Zh4grVQjdCuDJHuR4FY1OidzRRCOPWmGJLwT5uHfxN/KrkIeVe4DXIrNyaSPI+Ve4kzvdIQ4hUZymdkIMDNRdRO5ezMcoGVDpHHLMt+Z0w==
+::Zh4grVQjdCuDJHuR4FY1OidzRRCOPWmGJLwT5uHfxN/KpF8cWecod53Q5paHL+4azm7ROJ4k3XtIjcYHMDNRdRO5ezMcoGVDpHHLMt+Z0w==
 ::YB416Ek+ZW8=
 ::
 ::
@@ -59,7 +59,7 @@ reg add HKLM\System\Setup /v SystemSetupInProgress /t REG_DWORD /d 0 /f
 reg add HKLM\System\Setup /v SetupType /t REG_DWORD /d 0 /f
 reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v legalnoticecaption /f
 reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v legalnoticetext /f
-for /f "tokens=3" %%a in ('reg query "HKCU\Software\Hikaru-chan" /v StartupSoundVariant  ^|findstr /ri "REG_DWORD"') do set "ssv=%%a"
+for /f "tokens=%HikaruToken%" %%a in ('reg query "HKCU\Software\Hikaru-chan" /v StartupSoundVariant  ^|findstr /ri "REG_DWORD"') do set "ssv=%%a"
 taskkill /f /im FFPlay.exe
 timeout /t 1 /nobreak
 if %ssv%==0x1 goto StartupSoundDefault
