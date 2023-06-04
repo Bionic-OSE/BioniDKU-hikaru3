@@ -20,7 +20,7 @@ function Start-Hikarefreshing($hv,$rv) {
 	if ((Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikaroste.7z.old") -eq $true) {Remove-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikaroste.7z.old" -Force}
 	if ((Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikaru.7z") -eq $true) {Rename-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikaru.7z" -NewName Hikaru.7z.old}
 	if ((Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikare.7z") -eq $true) {Rename-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikare.7z" -NewName Hikare.7z.old}
-	if ((Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikaroste.7z") -eq $true) {Rename-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikare.7z" -NewName Hikaroste.7z.old}
+	if ((Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikaroste.7z") -eq $true) {Rename-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikaroste.7z" -NewName Hikaroste.7z.old}
 	while ($true) {
 		Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\wget.exe -Wait -NoNewWindow -ArgumentList "https://github.com/Bionic-OSE/BioniDKU-hikaru3/releases/latest/download/Hikaru.7z" -WorkingDirectory "$env:SYSTEMDRIVE\Bionic"
 		if (Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikaru.7z" -PathType Leaf) {break} else {

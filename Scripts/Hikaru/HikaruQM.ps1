@@ -20,6 +20,7 @@ function Show-Menu {
 	Write-Host "What do you want to do?" -ForegroundColor White
 	Write-Host "1. Restart Explorer shell" -ForegroundColor White
 	Write-Host "2. Change system colors" -ForegroundColor White
+	Write-Host "3. Open BioniDKU OS Wallpapers collection" -ForegroundColor White
 	Write-Host "0. Close this menu" -ForegroundColor White
 	Write-Host ' '
 }
@@ -90,6 +91,9 @@ function Input-SystemColor {
 		} catch {Write-Host "Please input valid integer numbers." -ForegroundColor Red; Start-Sleep -Seconds 5}
 	}
 }
+function Open-OSMEBackdrops {
+	Start-Process $env:SYSTEMDRIVE\Windows\explorer.exe -ArgumentList "$env:SYSTEMDRIVE\Bionic\Wallpapers"
+}
 
 while ($true) {
 	Show-Menu
@@ -98,6 +102,7 @@ while ($true) {
 		{$unem -like "0"} {exit}
 		{$unem -like "1"} {Confirm-RestartShell}
 		{$unem -like "2"} {Input-SystemColor}
+		{$unem -like "3"} {Open-OSMEBackdrops}
 		{$unem -like "9"} {
 			if ($update -eq 1) {
 				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshow.exe
