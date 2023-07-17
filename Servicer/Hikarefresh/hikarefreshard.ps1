@@ -3,7 +3,7 @@
 $host.UI.RawUI.WindowTitle = "BioniDKU Quick Menu for OSTE Updater"
 function Show-Branding {
 	Clear-Host
-	Write-Host "BioniDKU Quick Menu for OSTE Updater" -ForegroundColor Black -BackgroundColor White
+	Write-Host "BioniDKU OSTE System Updater" -ForegroundColor Black -BackgroundColor White
 	Write-Host ' '
 }
 

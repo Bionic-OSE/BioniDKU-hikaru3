@@ -2,10 +2,10 @@
 $update = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").UpdateAvailable
 if ($update -ne 1) {exit}
 
-$host.UI.RawUI.WindowTitle = "BioniDKU Quick Menu for OSTE Updater"
+$host.UI.RawUI.WindowTitle = "BioniDKU OSTE System Updater"
 function Show-Branding {
 	Clear-Host
-	Write-Host "BioniDKU Quick Menu for OSTE Updater" -ForegroundColor Black -BackgroundColor White
+	Write-Host "BioniDKU OSTE System Updater" -ForegroundColor Black -BackgroundColor White
 	Write-Host ' '
 }
 Show-Branding
