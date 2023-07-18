@@ -17,37 +17,41 @@ function Get-SystemSwitches {
 	$ntcm = (Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer").NoTrayContextMenu
 	if ($nr -eq 1 -and $ncp -eq 1 -and $ntcm -eq 1) {
 		$nall = 'ENABLED'
+		$nclr = 'Green'
 	} elseif ($nr -eq 0 -and $ncp -eq 0 -and $ntcm -eq 0) {
 		$nall = 'DISABLED'
+		$nclr = 'Red'
 	} else {
 		$nall = 'UNKNOWN - select this to enable'
+		$nclr = 'Yellow'
 	}
-	return $nall
+	return $nall, $nclr
 }
 function Show-Menu {
 	Show-Branding
 	if ($update -eq 1) {
-		Write-Host "9. An update is available, select this option for more information" -ForegroundColor Yellow
-		Write-Host " "
-	}
-	Write-Host "Becareful with what you are doing!" -ForegroundColor Magenta
-	$lock = Get-SystemSwitches
-	Write-Host "1. Restart Explorer shell" -ForegroundColor White
-	Write-Host "2. Enable/Disable Lockdown (currently " -ForegroundColor White -n; Write-Host "$lock" -ForegroundColor Cyan -n; Write-Host ")"
-	Write-Host "3. Open a Command Prompt window" -ForegroundColor White
-	Write-Host "0. Close this menu" -ForegroundColor White
-	Write-Host ' '
+		$updateopt = "`r`n 9. View update`r`n"
+		Write-Host "An update is available, select option 9 for more information`r`n" -ForegroundColor Yellow
+	} else {$updateopt = "`r`n"}
+	Write-Host "Becareful with what you are doing!`r`n" -ForegroundColor Magenta
+	$lock, $lockclr = Get-SystemSwitches
+	Write-Host " Shell tasks"
+	Write-Host " 1. Restart Explorer shell`r`n" -ForegroundColor White
+	Write-Host " System tasks"
+	Write-Host " 2. Enable/Disable Lockdown (currently " -ForegroundColor White -n; Write-Host "$lock" -ForegroundColor $lockclr -n; Write-Host ")"
+	Write-Host " 3. Open a Command Prompt window`r`n" -ForegroundColor White
+	Write-Host " Others"
+	Write-Host " 0. Close this menu${updateopt}" -ForegroundColor White
 }
 function Switch-Lockdown {
 	Show-Branding
 	$lock = Get-SystemSwitches
 	if ($lock -eq 'ENABLED') {
 		Write-Host "This option will disable all application restrictions, unblock Settings, Control Panel, the taskbar context menu, `r`nand unhide the Windows version from Command Prompt. Use this option if you are the challenge host and want to do `r`nmaintenance on this system without having to go through Group Policy and disable the restrictions one by one."
-		Write-Host "Disabling Lockdown means " -n; Write-Host "the RESPONSIBILTY of keeping the secrets will be YOURS " -ForegroundColor White -n; Write-Host "until you enable them again. If you `r`ncan securely proceed, hit 1 and Enter to disable, or hit anything and Enter to go back."
-		Write-Host "Proceeding will also restart Explorer, which closes all opening Explorer windows."
-		Write-Host ' '
-		Write-Host "Your answer: " -n; $back = Read-Host
-		if ($back -ne 1) {return $true}
+		Write-Host "Disabling Lockdown means " -n; Write-Host "the RESPONSIBILTY of keeping the secrets will be YOURS " -ForegroundColor White -n; Write-Host "until you enable them again. If you `r`ncan securely proceed, hit 1 and Enter to disable, or hit anything and Enter to go back.`r`n"
+		Write-Host "Proceeding will also (gracefully) restart the Explorer shell. Since Explorer windows won't be affected, changes `r`nmay not apply until your close and reopen them.`r`n"
+		Write-Host "> " -n; $back = Read-Host
+		if ($back -ne 1) {return}
 		
 		Show-Branding
 		Write-Host "Disabling Lockdown and applying changes..." -ForegroundColor White
@@ -61,11 +65,10 @@ function Switch-Lockdown {
 		Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\AdvancedRun.exe -ArgumentList "/run $env:SYSTEMDRIVE\Bionic\Hikaru\ApplicationFrameHost.cfg"
 		Restart-HikaruShell
 	} else {
-		Write-Host "Reenable Lockdown? Hit 1 and Enter to enable, or hit anything and Enter to go back."
-		Write-Host "Proceeding will also restart Explorer, which closes all opening Explorer windows."
-		Write-Host ' '
-		Write-Host "Your answer: " -n; $back = Read-Host
-		if ($back -ne 1) {return $true}
+		Write-Host "Reenable Lockdown? Hit 1 and Enter to enable, or hit anything and Enter to go back.`r`n" -ForegroundColor White
+		Write-Host "Proceeding will also (gracefully) restart the Explorer shell. Since Explorer windows won't be affected, changes `r`nmay not apply until your close and reopen them.`r`n"
+		Write-Host "> " -n; $back = Read-Host
+		if ($back -ne 1) {return}
 		
 		Show-Branding
 		Write-Host "Enabling Lockdown and applying changes..." -ForegroundColor White
@@ -92,7 +95,7 @@ function Start-CommandPrompt {
 		Write-Host "The build number will be " -n; Write-Host "IMMEDIATELY SHOWN" -ForegroundColor White -n; Write-Host " upon launching this program. It is then " -n; Write-Host "YOUR RESPONSIBILTY to keep the secrets!" -ForegroundColor White; Write-Host "If you can securely proceed, hit 1 and Enter to open, or hit anything and Enter to go back."
 	}
 	Write-Host ' '
-	Write-Host "Your answer: " -n; $back = Read-Host
+	Write-Host "> " -n; $back = Read-Host
 	if ($back -ne 1) {return $true}
 	
 	Start-Process $env:SYSTEMDRIVE\Windows\System32\cmd.exe
@@ -104,11 +107,11 @@ while($menu -eq $true) {
 	Show-Menu
 	Write-Host "Your selection: " -n; $unem = Read-Host
 	switch ($unem) {
-		{$unem -like "0"} {exit}
-		{$unem -like "1"} {Confirm-RestartShell}
-		{$unem -like "2"} {Switch-Lockdown}
-		{$unem -like "3"} {Start-CommandPrompt}
-		{$unem -like "9"} {
+		{$_ -like "0"} {exit}
+		{$_ -like "1"} {Confirm-RestartShell}
+		{$_ -like "2"} {Switch-Lockdown}
+		{$_ -like "3"} {Start-CommandPrompt}
+		{$_ -like "9"} {
 			if ($update -eq 1) {
 				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshow.exe
 				exit

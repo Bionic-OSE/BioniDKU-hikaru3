@@ -2,6 +2,7 @@
 
 $host.UI.RawUI.WindowTitle = "BioniDKU Quick Menu for OSTE"
 $update = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").UpdateAvailable
+$companion = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").Companion
 . $env:SYSTEMDRIVE\Bionic\Hikaru\Hikarestart.ps1
 
 Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe" -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\HikaruQMBeepOSTE.mp3 -nodisp -hide_banner -autoexit -loglevel quiet"
@@ -14,16 +15,24 @@ function Show-Branding {
 function Show-Menu {
 	Show-Branding
 	if ($update -eq 1) {
-		Write-Host "9. An update is available, select this option for more information" -ForegroundColor White
-		Write-Host " "
-	}
-	Write-Host "What do you want to do?" -ForegroundColor White
-	Write-Host "1. Restart Explorer shell" -ForegroundColor White
-	Write-Host "2. Change system colors" -ForegroundColor White
-	Write-Host "3. Open BioniDKU OS Wallpapers collection" -ForegroundColor White
-	Write-Host "0. Close this menu" -ForegroundColor White
-	Write-Host ' '
+		$updateopt = "`r`n 9. View update`r`n"
+		Write-Host "An update is available, select option 9 for more information`r`n" -ForegroundColor Yellow
+	} else {$updateopt = "`r`n"}
+	Write-Host "What do you want to do?`r`n" -ForegroundColor White
+	Write-Host " Shell tasks"
+	Write-Host " 1. Restart Explorer shell`r`n" -ForegroundColor White
+	Write-Host " Personalize"
+	Write-Host " 2. Change system colors" -ForegroundColor White
+	Write-Host " 3. Change taskbar location" -ForegroundColor White
+	Write-Host " 4. Open BioniDKU OS Wallpapers collection" -ForegroundColor White
+	Write-Host " 5. Change system sounds`r`n" -ForegroundColor White
+	Write-Host " Configure your device"
+	Write-Host " 6. Adjust time settings" -ForegroundColor White
+	Write-Host " 7. Adjust power settings`r`n" -ForegroundColor White
+	Write-Host " Others"
+	Write-Host " 0. Close this menu${updateopt}" -ForegroundColor White
 }
+
 function Set-SystemColor {
 	# SuwakoColors - (c) Bionic Butter
 	$redx = ([System.Convert]::ToString($red,16)).PadLeft(2,'0')
@@ -34,7 +43,7 @@ function Set-SystemColor {
 	$rlc0 = "00${blux}${grex}${redx}"
 	
 	Write-Host " "
-	Write-Host "These color values will set on your Active title bar color and Highlight color:" -ForegroundColor Cyan
+	Write-Host "These color values will set on your Active title bar color and Highlight color:" -ForegroundColor White
 	Write-Host "RGB Dec color: $red, $gre, $blu, 255"
 	Write-Host "RGB Hex color: $clrx"
 	Write-Host "BGR Hex color: $rlcx"
@@ -53,13 +62,13 @@ function Set-SystemColor {
 	$dlcx = "ff${bldx}${grdx}${rddx}"
 	
 	Write-Host " "
-	Write-Host "These color values will set on your Inactive title bar color:" -ForegroundColor Cyan
+	Write-Host "These color values will set on your Inactive title bar color:" -ForegroundColor White
 	Write-Host "60% Desaturated RGB Dec color: $redd, $gred, $blud, 255"
 	Write-Host "60% Desaturated RGB Hex color: $cldx"
 	Write-Host "60% Desaturated BGR Hex color: $dlcx"
 	
 	Write-Host " "
-	Write-Host "Apply the abovementioned colors to the system? (Yes/No): " -ForegroundColor White -n; $bruh = Read-Host
+	Write-Host "Apply the abovementioned colors to the system? (Yes): " -ForegroundColor White -n; $bruh = Read-Host
 	if ($bruh -like "yes") {
 		Set-ItemProperty -Path "HKCU:\Control Panel\Colors" -Name HotTrackingColor -Value "$red $gre $blu" -Type String -Force
 		Set-ItemProperty -Path "HKCU:\Control Panel\Colors" -Name Hilight -Value "$red $gre $blu" -Type String -Force
@@ -67,43 +76,101 @@ function Set-SystemColor {
 		Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\DefaultColors\Standard" -Name HotTrackingColor -Value "0x$rlc0" -Type DWord -Force
 		Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\DefaultColors\Standard" -Name Hilight -Value "0x$rlc0" -Type DWord -Force
 		Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Accent" -Name AccentColorMenu -Value "0x$rlcx" -Type DWord -Force
-		Write-Host "SUCCESS" -ForegroundColor Green
-		Write-Host "For the highlight color change to take effect, either lock your device or do Ctrl+Alt+Delete, and come back in." -ForegroundColor Yellow
+		Write-Host "Colors changed. For the highlight color change to take effect, either lock your device or do Ctrl+Alt+Delete, and come back in." -ForegroundColor White
 		Start-Sleep -Seconds 5
-	} else {}
+	}
 }
 function Input-SystemColor {
 	# SuwakoColors - (c) Bionic Butter
 	while ($true) {
 		Show-Branding
 		Write-Host "Input your desired color in R G and B, separated by spaces" -ForegroundColor White
-		Write-Host "(If you input nothing, the input will be inteperted as 0 0 0. Input 'b' to go back)"
+		Write-Host "(Vaild values are integers from 0 to 255. Note that Windows will not accept all colors. Input 'b' to go back)"
 		Write-Host "> " -n; $clri = Read-Host
 		if ($clri -like "b") {break}
-		$redi,$grei,$blui = $clri.Split(" ")
-		try {
-			$red = [int32]$redi
-			$gre = [int32]$grei
-			$blu = [int32]$blui
-			if ($red -gt 255 -or $gre -gt 255 -or $blu -gt 255 -or $red -lt 0 -or $gre -lt 0 -or $blu -lt 0 -or $red -like '' -or $gre -like '' -or $blu -like '' -or $red -like ' ' -or $gre -like ' ' -or $blu -like ' ' -or $red -eq $null -or $gre -eq $null -or $blu -eq $null) {
-				Write-Host "One or more value either exceeds 255, falls below 0, or equals null. Try again" -ForegroundColor Red; Start-Sleep -Seconds 5
-			} else {Set-SystemColor}
-		} catch {Write-Host "Please input valid integer numbers." -ForegroundColor Red; Start-Sleep -Seconds 5}
+		if (-not [string]::IsNullOrWhiteSpace($clri)) {
+			$redi,$grei,$blui = $clri.Split(" ")
+			try {
+				$red = [int32]$redi
+				$gre = [int32]$grei
+				$blu = [int32]$blui
+				if ($red -gt 255 -or $gre -gt 255 -or $blu -gt 255 -or $red -lt 0 -or $gre -lt 0 -or $blu -lt 0) {
+					Write-Host "One or more value either exceed(s) 255 or fall(s) below 0. Try again" -ForegroundColor Red; Start-Sleep -Seconds 2
+				} else {Set-SystemColor}
+			} catch {Write-Host "Please input valid integer numbers." -ForegroundColor Red; Start-Sleep -Seconds 2}
+		}
+	}
+}
+function Set-TaskbarLocation {
+	# Sourced from https://blog.ironmansoftware.com/daily-powershell/windows-11-taskbar-location/
+    param(
+        [Parameter(Mandatory)]
+        [ValidateSet("3", "4", "1", "2")] # Left, Right, Top, Bottom
+        $Location,
+        [Parameter()]
+        [Switch]$RestartExplorer
+    )
+	
+	Write-Host "Changing taskbar location" -ForegroundColor White
+	if ($companion -like "Nilou" -or $companion -like "Erisa") {$tskbt = "Legacy"} else {$tskbt = "3"}
+    $bit = 0;
+    switch ($Location) {
+        "3" { $bit = 0x00 }
+        "4" { $bit = 0x02 }
+        "1" { $bit = 0x01 }
+        "2" { $bit = 0x03 }
+    }
+	
+    $Settings = (Get-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects${tskbt} -Name Settings).Settings
+    $Settings[12] = $bit
+    Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects${tskbt} -Name Settings -Value $Settings
+
+    if ($RestartExplorer) {
+        Restart-HikaruShell
+    }
+}
+function Input-TaskbarLocation {
+	while ($true) {
+		Show-Branding
+		Write-Host "Move your taskbar without disabling lockdown using this option. The Explorer shell will be (gracefully) restarted for `r`nchanges to take effect.`r`n" -ForegroundColor White
+		Write-Host " Select a taskbar location"
+		Write-Host " 1. Top" -ForegroundColor White -n; Write-Host " (OSTE default)"
+		Write-Host " 2. Bottom" -ForegroundColor White
+		Write-Host " 3. Left" -ForegroundColor White
+		Write-Host " 4. Right`r`n" -ForegroundColor White
+		Write-Host " 0. Cancel`r`n" -ForegroundColor White
+		Write-Host "> " -n; $tskbl = Read-Host
+		$tskbv = "1","2","3","4"
+		if ($tskbl -like "0") {break}
+		if (-not [string]::IsNullOrWhiteSpace($tskbl) -and $tskbv.Contains($tskbl)) {
+			Write-Host "Are sure you want to do this? (1): " -ForegroundColor White -n; $bruu = Read-Host
+			if ($bruu -like "1") {Set-TaskbarLocation -Location $tskbl -RestartExplorer}
+		}
 	}
 }
 function Open-OSMEBackdrops {
 	Start-Process $env:SYSTEMDRIVE\Windows\explorer.exe -ArgumentList "$env:SYSTEMDRIVE\Bionic\Wallpapers"
 }
+function Start-RunDllCpl($param) {
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoControlPanel -Value 0 -Type DWord
+	Start-Process rundll32.exe -ArgumentList "$param"
+	Start-Sleep -Seconds 1
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoControlPanel -Value 1 -Type DWord
+}
 
 while ($true) {
 	Show-Menu
-	Write-Host "Your selection: " -n; $unem = Read-Host
+	Write-Host "> " -n; $unem = Read-Host
 	switch ($unem) {
-		{$unem -like "0"} {exit}
-		{$unem -like "1"} {Confirm-RestartShell}
-		{$unem -like "2"} {Input-SystemColor}
-		{$unem -like "3"} {Open-OSMEBackdrops}
-		{$unem -like "9"} {
+		{$_ -like "0"} {exit}
+		{$_ -like "1"} {Confirm-RestartShell}
+		{$_ -like "2"} {Input-SystemColor}
+		{$_ -like "3"} {Input-TaskbarLocation}
+		{$_ -like "4"} {Open-OSMEBackdrops}
+		{$_ -like "5"} {& $env:SYSTEMDRIVE\Bionic\Hikaru\SoundWizard.ps1}
+		{$_ -like "6"} {Start-RunDllCpl "shell32.dll,Control_RunDLL TimeDate.cpl,,0"}
+		{$_ -like "7"} {Start-RunDllCpl "shell32.dll,Control_RunDLL PowerCfg.cpl @0,/editplan:381b4222-f694-41f0-9685-ff5bb260df2e"}
+		{$_ -like "9"} {
 			if ($update -eq 1) {
 				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshow.exe
 				exit

@@ -1,7 +1,7 @@
 ::[Bat To Exe Converter]
 ::
 ::YAwzoRdxOk+EWAjk
-::fBw5plQjdCKDJH6N4H4SIRRaRSCpCSayD74d+v3Hx+OMo18UV+0xRKfS0bWcKeMc5AvtdplN
+::fBw5plQjdCaDJH6N4H4SIRRaRSCpCSayD74d+v3HxumIrHE1Xek+aobY1brAKeMcig==
 ::YAwzuBVtJxjWCl3EqQJgSA==
 ::ZR4luwNxJguZRRnk
 ::Yhs/ulQjdF+5
@@ -26,7 +26,7 @@
 ::ZQ0/vhVqMQ3MEVWAtB9wSA==
 ::Zg8zqx1/OA3MEVWAtB9wSA==
 ::dhA7pRFwIByZRRnk
-::Zh4grVQjdCyDJHuR4FY1OidzRRCOPWmGJLwT5uHfxN/KpF8cWecod53Q5paHL+4azm7ROJ4k3XtIjcYHMDNRdRO5ezMcoGVDpHG0GomZqwqB
+::Zh4grVQjdCuDJHuR4FY1OidzRRCOPWmGJLwT5uHfxN/KrkIeVe4DXIrNyaSPI+Ve4kzvdIQ4hUZymdkIMDNRdRO5ezMcoGVDpHG0GomZqwqB
 ::YB416Ek+ZW8=
 ::
 ::
@@ -34,7 +34,7 @@
 @echo off
 
 title Please wait...
-echo BioniDKU Quick Menu
+echo [7;97mBioniDKU Quick Menu - OSTE edition[0m
 echo(
 echo Preparing Quick Menu options...
 powershell.exe %systemdrive%\Bionic\Hikaru\HikaruQM.ps1
