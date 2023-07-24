@@ -2,7 +2,6 @@
 
 $host.UI.RawUI.WindowTitle = "BioniDKU Quick Menu for OSTE"
 $update = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").UpdateAvailable
-$companion = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").Companion
 . $env:SYSTEMDRIVE\Bionic\Hikaru\Hikarestart.ps1
 
 Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe" -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\HikaruQMBeepOSTE.mp3 -nodisp -hide_banner -autoexit -loglevel quiet"
@@ -103,31 +102,29 @@ function Input-SystemColor {
 }
 function Set-TaskbarLocation {
 	# Sourced from https://blog.ironmansoftware.com/daily-powershell/windows-11-taskbar-location/
-    param(
-        [Parameter(Mandatory)]
-        [ValidateSet("3", "4", "1", "2")] # Left, Right, Top, Bottom
-        $Location,
-        [Parameter()]
-        [Switch]$RestartExplorer
-    )
+	param(
+		[Parameter(Mandatory)]
+		[ValidateSet("3", "4", "1", "2")] # Left, Right, Top, Bottom
+		$Location
+	)
 	
 	Write-Host "Changing taskbar location" -ForegroundColor White
-	if ($companion -like "Nilou" -or $companion -like "Erisa") {$tskbt = "Legacy"} else {$tskbt = "3"}
-    $bit = 0;
-    switch ($Location) {
-        "3" { $bit = 0x00 }
-        "4" { $bit = 0x02 }
-        "1" { $bit = 0x01 }
-        "2" { $bit = 0x03 }
-    }
 	
-    $Settings = (Get-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects${tskbt} -Name Settings).Settings
-    $Settings[12] = $bit
-    Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects${tskbt} -Name Settings -Value $Settings
-
-    if ($RestartExplorer) {
-        Restart-HikaruShell
-    }
+	Start-ShellSpinner
+	Exit-HikaruShell
+	if ($companion -like "Nilou" -or $companion -like "Erisa") {$tskbt = "Legacy"} else {$tskbt = "3"}
+	$bit = 0;
+	switch ($Location) {
+		"3" { $bit = 0x00 }
+		"4" { $bit = 0x02 }
+		"1" { $bit = 0x01 }
+		"2" { $bit = 0x03 }
+	}
+	$Settings = (Get-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects${tskbt} -Name Settings).Settings
+	$Settings[12] = $bit
+	Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects${tskbt} -Name Settings -Value $Settings
+	
+	Restart-HikaruShell -NoStop -NoSpin
 }
 function Input-TaskbarLocation {
 	while ($true) {
@@ -144,7 +141,7 @@ function Input-TaskbarLocation {
 		if ($tskbl -like "0") {break}
 		if (-not [string]::IsNullOrWhiteSpace($tskbl) -and $tskbv.Contains($tskbl)) {
 			Write-Host "Are sure you want to do this? (1): " -ForegroundColor White -n; $bruu = Read-Host
-			if ($bruu -like "1") {Set-TaskbarLocation -Location $tskbl -RestartExplorer}
+			if ($bruu -like "1") {Set-TaskbarLocation -Location $tskbl}
 		}
 	}
 }
