@@ -1,6 +1,6 @@
 # BioniDKU Quick/Administrative Menu Explorer restarting functions loader
 
-$shhk = "$env:SYSTEMDRIVE\Bionic\Hikaru\AdvancedRun.exe /run$env:SYSTEMDRIVE\Bionic\Hikaru\Hikaru.cfg"
+$shhk = "$env:SYSTEMDRIVE\Bionic\Hikaru\AdvancedRun.exe /run $env:SYSTEMDRIVE\Bionic\Hikaru\Hikaru.cfg"
 $companion = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").Companion
 if ($companion -like "Nilou" -or $companion -like "Erisa") {$attached = "SearchApp"} else {$attached = "SearchUI"}
 
@@ -34,7 +34,7 @@ function Restart-HikaruShell {
 	)
 	if (-not $NoSpin) {Start-ShellSpinner}
 	Write-Host "Now restarting Explorer..." -ForegroundColor White
-	Write-Host "DO NOT POWER OFF YOUR SYSTEM OR CLOSE THIS WINDOW UNTIL THE MAIN MENU APPEARS!" -ForegroundColor White
+	Write-Host "DO NOT POWER OFF YOUR SYSTEM OR CLOSE THIS WINDOW!" -ForegroundColor White
 	if (-not $NoStop) {if ($Force) {taskkill /f /im explorer.exe} else {Exit-HikaruShell}}
 	Set-BootMessage
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "Shell" -Value 'explorer.exe' -Type String -Force

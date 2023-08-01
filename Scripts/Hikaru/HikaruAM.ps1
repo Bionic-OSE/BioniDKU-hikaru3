@@ -1,14 +1,14 @@
 # HikaruAM for BioniDKU OSTE - (c) Bionic Butter
 
-$host.UI.RawUI.WindowTitle = "BioniDKU Administrative Menu for OSTE"
 $update = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").UpdateAvailable
 . $env:SYSTEMDRIVE\Bionic\Hikaru\Hikarestart.ps1
 
 Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe" -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\HikaruQMBeepOSTE.mp3 -nodisp -hide_banner -autoexit -loglevel quiet"
 
 function Show-Branding {
+	$host.UI.RawUI.WindowTitle = "BioniDKU OSTE Administrative Menu"
 	Clear-Host
-	Write-Host "BioniDKU Administrative Menu - OSTE edition" -ForegroundColor Black -BackgroundColor Magenta
+	Write-Host "BioniDKU OSTE Administrative Menu" -ForegroundColor Black -BackgroundColor Magenta
 	Write-Host ' '
 }
 function Get-SystemSwitches {
@@ -30,9 +30,9 @@ function Get-SystemSwitches {
 function Show-Menu {
 	Show-Branding
 	if ($update -eq 1) {
-		$updateopt = "`r`n 9. View update`r`n"
-		Write-Host "An update is available, select option 9 for more information`r`n" -ForegroundColor Yellow
-	} else {$updateopt = "`r`n"}
+		$updateopt = "9. View update`r`n"
+		Write-Host "An update is available, select option 9 for more information`r`n" -ForegroundColor White
+	} else {$updateopt = "9. Check for OSTE updates`r`n"}
 	Write-Host "Becareful with what you are doing!`r`n" -ForegroundColor Magenta
 	$lock, $lockclr = Get-SystemSwitches
 	Write-Host " Shell tasks"
@@ -41,7 +41,7 @@ function Show-Menu {
 	Write-Host " 2. Enable/Disable Lockdown (currently " -ForegroundColor White -n; Write-Host "$lock" -ForegroundColor $lockclr -n; Write-Host ")"
 	Write-Host " 3. Open a Command Prompt window`r`n" -ForegroundColor White
 	Write-Host " Others"
-	Write-Host " 0. Close this menu${updateopt}" -ForegroundColor White
+	Write-Host " ${updateopt} 0. Close this menu`r`n" -ForegroundColor White
 }
 function Switch-Lockdown {
 	Show-Branding
@@ -105,7 +105,7 @@ function Start-CommandPrompt {
 $menu = $true
 while($menu -eq $true) {
 	Show-Menu
-	Write-Host "Your selection: " -n; $unem = Read-Host
+	Write-Host "> " -n; $unem = Read-Host
 	switch ($unem) {
 		{$_ -like "0"} {exit}
 		{$_ -like "1"} {Confirm-RestartShell}
@@ -114,6 +114,10 @@ while($menu -eq $true) {
 		{$_ -like "9"} {
 			if ($update -eq 1) {
 				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshow.exe
+				exit
+			} else {
+				Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "UpdateCheckerLaunchedFrom" -Value "AM" -Type String -Force
+				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefresh.exe
 				exit
 			}
 		}

@@ -81,7 +81,7 @@ while ($true) {
 	switch ($snem) {
 		{$_ -like "0"} {exit}
 		{$_ -like "1"} {Show-IPrompt S "sign-in sound" 3}
-		{$_ -like "2"} {Show-IPrompt C "charging sound" 5}
-        {$_ -like "3"} {Show-IPrompt L "low battery sound" 3}
+		{$_ -like "2"} {Show-IPrompt C "charging sound" 7}
+        {$_ -like "3"} {Show-IPrompt L "low battery sound" 4}
 	}
 }

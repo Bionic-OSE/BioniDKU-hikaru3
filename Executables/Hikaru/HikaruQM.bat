@@ -34,7 +34,7 @@
 @echo off
 
 title Please wait...
-echo [7;97mBioniDKU Quick Menu - OSTE edition[0m
+echo [7;97mBioniDKU OSTE Quick Menu[0m
 echo(
 echo Preparing Quick Menu options...
 powershell.exe %systemdrive%\Bionic\Hikaru\HikaruQM.ps1

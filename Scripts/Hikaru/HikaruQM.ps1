@@ -1,22 +1,24 @@
 # HikaruQM for BioniDKU OSTE - (c) Bionic Butter
 
-$host.UI.RawUI.WindowTitle = "BioniDKU Quick Menu for OSTE"
 $update = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").UpdateAvailable
 . $env:SYSTEMDRIVE\Bionic\Hikaru\Hikarestart.ps1
 
 Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe" -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\HikaruQMBeepOSTE.mp3 -nodisp -hide_banner -autoexit -loglevel quiet"
 
 function Show-Branding {
+	$host.UI.RawUI.WindowTitle = "BioniDKU OSTE Quick Menu"
 	Clear-Host
-	Write-Host "BioniDKU Quick Menu - OSTE edition" -ForegroundColor Black -BackgroundColor White
+	Write-Host "BioniDKU OSTE Quick Menu" -ForegroundColor Black -BackgroundColor White
 	Write-Host ' '
 }
 function Show-Menu {
 	Show-Branding
+	$nekoboxinstalled = Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Nekobox\Kernel\Nekoprompt.exe"
+	if ($nekoboxinstalled) {$nekoboxopt = "8. Check for Nekobox updates"} else {$nekoboxopt = "8. Install Nekobox"}
 	if ($update -eq 1) {
-		$updateopt = "`r`n 9. View update`r`n"
-		Write-Host "An update is available, select option 9 for more information`r`n" -ForegroundColor Yellow
-	} else {$updateopt = "`r`n"}
+		$updateopt = "9. View update`r`n"
+		Write-Host "An update is available, select option 9 for more information`r`n" -ForegroundColor White
+	} else {$updateopt = "9. Check for OSTE updates`r`n"}
 	Write-Host "What do you want to do?`r`n" -ForegroundColor White
 	Write-Host " Shell tasks"
 	Write-Host " 1. Restart Explorer shell`r`n" -ForegroundColor White
@@ -29,7 +31,8 @@ function Show-Menu {
 	Write-Host " 6. Adjust time settings" -ForegroundColor White
 	Write-Host " 7. Adjust power settings`r`n" -ForegroundColor White
 	Write-Host " Others"
-	Write-Host " 0. Close this menu${updateopt}" -ForegroundColor White
+	Write-Host " ${nekoboxopt}" -ForegroundColor White
+	Write-Host " ${updateopt} 0. Close this menu`r`n" -ForegroundColor White
 }
 
 function Set-SystemColor {
@@ -167,9 +170,17 @@ while ($true) {
 		{$_ -like "5"} {& $env:SYSTEMDRIVE\Bionic\Hikaru\SoundWizard.ps1}
 		{$_ -like "6"} {Start-RunDllCpl "shell32.dll,Control_RunDLL TimeDate.cpl,,0"}
 		{$_ -like "7"} {Start-RunDllCpl "shell32.dll,Control_RunDLL PowerCfg.cpl @0,/editplan:381b4222-f694-41f0-9685-ff5bb260df2e"}
+		{$_ -like "8"} {
+			Start-Process powershell -Wait -WindowStyle Hidden -ArgumentList "& $env:SYSTEMDRIVE\Bionic\Nekobox\Updater\Nekodatenn.ps1"
+			& $env:SYSTEMDRIVE\Bionic\Nekobox\Updater\Nekodatedl.ps1
+		}
 		{$_ -like "9"} {
 			if ($update -eq 1) {
 				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshow.exe
+				exit
+			} else {
+				Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "UpdateCheckerLaunchedFrom" -Value "QM" -Type String -Force
+				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefresh.exe
 				exit
 			}
 		}

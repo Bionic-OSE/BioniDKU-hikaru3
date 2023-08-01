@@ -34,10 +34,10 @@
 @echo off
 
 title Please wait...
-echo This menu might show OS build differences. Press any key when you're safe to proceed.
+echo For security, to invoke this menu, please press any key.
 pause > nul
 cls
-echo [7;95mBioniDKU Administrative Menu - OSTE edition[0m
+echo [7;95mBioniDKU OSTE Administrative Menu[0m
 echo(
 echo Preparing Administrative Menu options...
 powershell.exe %systemdrive%\Bionic\Hikaru\HikaruAM.ps1
