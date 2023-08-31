@@ -2,10 +2,10 @@
 
 $shhk = "$env:SYSTEMDRIVE\Bionic\Hikaru\AdvancedRun.exe /run $env:SYSTEMDRIVE\Bionic\Hikaru\Hikaru.cfg"
 $companion = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").Companion
-if ($companion -like "Nilou" -or $companion -like "Erisa") {$attached = "SearchApp"} else {$attached = "SearchUI"}
+if ($companion -like "Collei") {$waitsec = 6; $attached = "SearchUI"} else {$waitsec = 4; $attached = "SearchApp"}
 
 function Start-ShellSpinner {
-	Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\ShellSpinner.mp4 -fs -alwaysontop -noborder -autoexit"
+	$global:SuwakoSpinner = Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\ShellSpinner.mp4 -fs -alwaysontop -noborder" -PassThru
 	Start-Sleep -Seconds 1
 }
 
@@ -33,15 +33,31 @@ function Restart-HikaruShell {
 		[switch]$NoSpin
 	)
 	if (-not $NoSpin) {Start-ShellSpinner}
-	Write-Host "Now restarting Explorer..." -ForegroundColor White
-	Write-Host "DO NOT POWER OFF YOUR SYSTEM OR CLOSE THIS WINDOW!" -ForegroundColor White
+	Write-Host "Now restarting Explorer... DO NOT POWER OFF YOUR SYSTEM OR CLOSE THIS WINDOW!" -ForegroundColor White
 	if (-not $NoStop) {if ($Force) {taskkill /f /im explorer.exe} else {Exit-HikaruShell}}
 	Set-BootMessage
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "Shell" -Value 'explorer.exe' -Type String -Force
-	Start-Sleep -Seconds 2
+	Start-Sleep -Seconds $waitsec
 	Start-Process $env:SYSTEMDRIVE\Windows\explorer.exe
 	Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\SkipExplorer.exe
-	Write-Host "If by any chance a new Explorer window is opened instead of the shell, press Ctrl+Q to retry starting it again." -ForegroundColor White
+	Write-Host " - If by any chance a new Explorer window is opened instead of the shell, press Ctrl+Q to retry starting it again." -ForegroundColor White
+	Write-Host " - If the shell has started but this line still doesn't disappear for a long time, press Ctrl+S." -ForegroundColor White
+	Write-Host "   The system will show a popup, by which point please restart (NOT sign out) your device." -ForegroundColor White
+	if (-not $NoStop) {
+		$waitcount = 0
+		while ($waitcount -le 15) {
+			$attaching = Get-Process -Name $attached -ErrorAction SilentlyContinue
+			if ($attaching) {Stop-Process $SuwakoSpinner.Id; break}
+			$waitcount++
+			Start-Sleep -Seconds 1
+		}
+		$attaching = Get-Process -Name $attached -ErrorAction SilentlyContinue
+		if (-not $attaching) {
+			taskkill /f /im explorer.exe
+			Start-Process $env:SYSTEMDRIVE\Windows\explorer.exe
+			Stop-Process $SuwakoSpinner.Id
+		}
+	}
 	while ($true) {
 		$attaching = Get-Process -Name $attached -ErrorAction SilentlyContinue
 		if ($attaching) {break}

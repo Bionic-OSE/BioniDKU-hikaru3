@@ -1,6 +1,7 @@
 # HikaruAM for BioniDKU OSTE - (c) Bionic Butter
 
 $update = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").UpdateAvailable
+$reveal = Test-Path -Path $env:SYSTEMDRIVE\Bionic\Reveal\Immersive.mp4 -ErrorAction SilentlyContinue
 . $env:SYSTEMDRIVE\Bionic\Hikaru\Hikarestart.ps1
 
 Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe" -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\HikaruQMBeepOSTE.mp3 -nodisp -hide_banner -autoexit -loglevel quiet"
@@ -30,18 +31,19 @@ function Get-SystemSwitches {
 function Show-Menu {
 	Show-Branding
 	if ($update -eq 1) {
-		$updateopt = "9. View update`r`n"
+		$updateopt = "9. View update`r`n "
 		Write-Host "An update is available, select option 9 for more information`r`n" -ForegroundColor White
-	} else {$updateopt = "9. Check for OSTE updates`r`n"}
+	} else {$updateopt = ""}
 	Write-Host "Becareful with what you are doing!`r`n" -ForegroundColor Magenta
 	$lock, $lockclr = Get-SystemSwitches
 	Write-Host " Shell tasks"
 	Write-Host " 1. Restart Explorer shell`r`n" -ForegroundColor White
 	Write-Host " System tasks"
 	Write-Host " 2. Enable/Disable Lockdown (currently " -ForegroundColor White -n; Write-Host "$lock" -ForegroundColor $lockclr -n; Write-Host ")"
-	Write-Host " 3. Open a Command Prompt window`r`n" -ForegroundColor White
+	Write-Host " 3. Open a Command Prompt window" -ForegroundColor White
+	if ($reveal -and $lock -eq 'DISABLED') {Write-Host " 4. Reveal the operating system`r`n" -ForegroundColor White} else {Write-Host "`r"}
 	Write-Host " Others"
-	Write-Host " ${updateopt} 0. Close this menu`r`n" -ForegroundColor White
+	Write-Host " ${updateopt}0. Close this menu`r`n" -ForegroundColor White
 }
 function Switch-Lockdown {
 	Show-Branding
@@ -111,6 +113,10 @@ while($menu -eq $true) {
 		{$_ -like "1"} {Confirm-RestartShell}
 		{$_ -like "2"} {Switch-Lockdown}
 		{$_ -like "3"} {Start-CommandPrompt}
+		{$_ -like "4"} {
+			$lock = Get-SystemSwitches
+			if ($reveal -and $lock -eq 'DISABLED') {Start-Process powershell.exe -WindowStyle Hidden -ArgumentList "-Command `"$env:SYSTEMDRIVE\Bionic\Reveal\Dialog.ps1`""; exit}
+		}
 		{$_ -like "9"} {
 			if ($update -eq 1) {
 				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshow.exe

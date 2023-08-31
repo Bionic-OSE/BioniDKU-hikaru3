@@ -1,0 +1,1 @@
+prompt = msgbox("Unstuck complete, please restart your device", 48, "BioniDKU OSTE System")

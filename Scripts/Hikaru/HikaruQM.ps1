@@ -1,6 +1,7 @@
 # HikaruQM for BioniDKU OSTE - (c) Bionic Butter
 
 $update = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").UpdateAvailable
+$nekoboxinstalled = Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Nekobox\Kernel\Nekoprompt.exe" -ErrorAction SilentlyContinue
 . $env:SYSTEMDRIVE\Bionic\Hikaru\Hikarestart.ps1
 
 Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe" -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\HikaruQMBeepOSTE.mp3 -nodisp -hide_banner -autoexit -loglevel quiet"
@@ -13,12 +14,10 @@ function Show-Branding {
 }
 function Show-Menu {
 	Show-Branding
-	$nekoboxinstalled = Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Nekobox\Kernel\Nekoprompt.exe"
-	if ($nekoboxinstalled) {$nekoboxopt = "8. Check for Nekobox updates"} else {$nekoboxopt = "8. Install Nekobox"}
 	if ($update -eq 1) {
-		$updateopt = "9. View update`r`n"
+		$updateopt = "9. View update`r`n "
 		Write-Host "An update is available, select option 9 for more information`r`n" -ForegroundColor White
-	} else {$updateopt = "9. Check for OSTE updates`r`n"}
+	} else {$updateopt = ""}
 	Write-Host "What do you want to do?`r`n" -ForegroundColor White
 	Write-Host " Shell tasks"
 	Write-Host " 1. Restart Explorer shell`r`n" -ForegroundColor White
@@ -31,8 +30,8 @@ function Show-Menu {
 	Write-Host " 6. Adjust time settings" -ForegroundColor White
 	Write-Host " 7. Adjust power settings`r`n" -ForegroundColor White
 	Write-Host " Others"
-	Write-Host " ${nekoboxopt}" -ForegroundColor White
-	Write-Host " ${updateopt} 0. Close this menu`r`n" -ForegroundColor White
+	if (-not $nekoboxinstalled) {Write-Host " 8. Install Nekobox" -ForegroundColor White} 
+	Write-Host " ${updateopt}0. Close this menu`r`n" -ForegroundColor White
 }
 
 function Set-SystemColor {
