@@ -1,87 +1,72 @@
-# BioniDKU Quick/Administrative Menu Explorer restarting functions loader
+# BioniDKU Quick/Administrative Menu Explorer restarting functions hive
 
-$shhk = "$env:SYSTEMDRIVE\Bionic\Hikaru\AdvancedRun.exe /run $env:SYSTEMDRIVE\Bionic\Hikaru\Hikaru.cfg"
-$companion = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").Companion
-if ($companion -like "Collei") {$waitsec = 6; $attached = "SearchUI"} else {$waitsec = 4; $attached = "SearchApp"}
+$hikaveraw = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").Version
+$hikareraw = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").Revision
+$hikaru = $hikaveraw.Substring(6)
+$hikarev = $hikareraw.Substring(6)
 
+function Check-SafeMode {
+	$sm = (Get-CimInstance win32_computersystem -Property BootupState).BootupState
+	switch ($sm) {
+		"Normal boot" {return $false}
+		{$_ -like "Fail-safe*"} {return $true}
+	}
+}
 function Start-ShellSpinner {
-	$global:SuwakoSpinner = Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\ShellSpinner.mp4 -fs -alwaysontop -noborder" -PassThru
+	if ((Check-SafeMode) -or $staticspinner) {$n = "S"} else {$n = Get-Random -Minimum 1 -Maximum 6}
+	$global:SuwakoSpinner = Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\ShellSpinner$n.mp4 -fs -alwaysontop -noborder -autoexit" -PassThru
 	Start-Sleep -Seconds 1
 }
-
-function Set-BootMessage {
-	Set-ItemProperty "HKLM:\SYSTEM\Setup" -Name CmdLine -Value "cmd.exe /c $env:SYSTEMDRIVE\Bionic\Hikaru\Hikarepair.bat" -Type String -Force
-	Set-ItemProperty "HKLM:\SYSTEM\Setup" -Name SystemSetupInProgress -Value 1 -Type DWord -Force
-	Set-ItemProperty "HKLM:\SYSTEM\Setup" -Name SetupType -Value 2 -Type DWord -Force
-}
-function Clear-BootMessage {
-	Set-ItemProperty "HKLM:\SYSTEM\Setup" -Name CmdLine -Value "" -Type String -Force
-	Set-ItemProperty "HKLM:\SYSTEM\Setup" -Name SystemSetupInProgress -Value 0 -Type DWord -Force
-	Set-ItemProperty "HKLM:\SYSTEM\Setup" -Name SetupType -Value 0 -Type DWord -Force
-}
-function Exit-HikaruShell {
-	Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\ExitExplorer.exe -WindowStyle Hidden
-	if ($companion -like "Collei") {
-		taskkill /f /im SearchUI.exe
-		Start-Sleep -Seconds 1
-	} else {Wait-Process -Name $attached -ErrorAction SilentlyContinue}
+function Exit-HikaruShell($type) {
+	$sid = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").ShellID
+	switch ($type) {
+		default {
+			Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\ExitExplorer.exe -WindowStyle Hidden
+			Start-Sleep -Seconds 1
+			taskkill /f /pid $sid # ExitExplorer.exe does exit Explorer, but in certain cases it can leave Explorer be a "ghost" process. Killing this is neccesary.
+		}
+		1 {taskkill /f /pid $sid}
+		2 {taskkill /f /im explorer.exe}
+	}
+	taskkill /f /im DesktopInfo.exe
 }
 function Restart-HikaruShell {
+	[CmdletBinding()]
 	param (
-		[switch]$Force,
+		[string]$Method,
 		[switch]$NoStop,
-		[switch]$NoSpin
+		[switch]$NoSpin,
+		[switch]$HKBoot
 	)
 	if (-not $NoSpin) {Start-ShellSpinner}
-	Write-Host "Now restarting Explorer... DO NOT POWER OFF YOUR SYSTEM OR CLOSE THIS WINDOW!" -ForegroundColor White
-	if (-not $NoStop) {if ($Force) {taskkill /f /im explorer.exe} else {Exit-HikaruShell}}
-	Set-BootMessage
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "Shell" -Value 'explorer.exe' -Type String -Force
-	Start-Sleep -Seconds $waitsec
-	Start-Process $env:SYSTEMDRIVE\Windows\explorer.exe
-	Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\SkipExplorer.exe
-	Write-Host " - If by any chance a new Explorer window is opened instead of the shell, press Ctrl+Q to retry starting it again." -ForegroundColor White
-	Write-Host " - If the shell has started but this line still doesn't disappear for a long time, press Ctrl+S." -ForegroundColor White
-	Write-Host "   The system will show a popup, by which point please restart (NOT sign out) your device." -ForegroundColor White
-	if (-not $NoStop) {
-		$waitcount = 0
-		while ($waitcount -le 15) {
-			$attaching = Get-Process -Name $attached -ErrorAction SilentlyContinue
-			if ($attaching) {Stop-Process $SuwakoSpinner.Id; break}
-			$waitcount++
-			Start-Sleep -Seconds 1
-		}
-		$attaching = Get-Process -Name $attached -ErrorAction SilentlyContinue
-		if (-not $attaching) {
-			taskkill /f /im explorer.exe
-			Start-Process $env:SYSTEMDRIVE\Windows\explorer.exe
-			Stop-Process $SuwakoSpinner.Id
-		}
-	}
+	if (-not $NoStop) {Write-Host "Now restarting Explorer..." -ForegroundColor White; Exit-HikaruShell $Method}
+	if ($HKBoot) {if (Check-SafeMode) {Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\HikaruBuildMod.exe"} else {Start-Process powershell -WindowStyle Hidden -ArgumentList "Start-ScheduledTask -TaskName 'BioniDKU Windows Build String Modifier'"}}
+	
+	$build = [System.Environment]::OSVersion.Version | Select-Object -ExpandProperty "Build"
+	if ($build -le 10586) {$hkrbuildkey = "CurrentBuildNumber"} else {$hkrbuildkey = "BuildLab"}
 	while ($true) {
-		$attaching = Get-Process -Name $attached -ErrorAction SilentlyContinue
-		if ($attaching) {break}
+		$hkrbchkvar = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").$hkrbuildkey
+		$hkrbuildose = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").BuildLabOSE
+		if ($hkrbchkvar -eq $hkrbuildose) {break}
 	}
-	Stop-Process -Name "SkipExplorer" -Force -ErrorAction SilentlyContinue
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "Shell" -Value $shhk -Type String -Force
-	Clear-BootMessage
+	$eid = Start-Process $env:SYSTEMROOT\explorer.exe -PassThru
+	if (-not $NoStop) {Start-Process "$env:SYSTEMDRIVE\Program Files\DesktopInfo\DesktopInfo.exe"}
+	Start-Sleep -Seconds 1
+	Set-ItemProperty "HKCU:\Software\Hikaru-chan" -Name ShellID -Value $eid.Id -Type String -Force
 }
 function Confirm-RestartShell {
 	Show-Branding
-	Write-Host "The Explorer shell on a BioniDKU enabled system works a bit differently, and thus restarting by normal means will `r`nresult in an Explorer window opening instead of the shell restarting. Use this option to restart the shell properly.`r`n"
-	Write-Host " - To gracefully restart (only) the shell, hit 1 and Enter. This will not close your Explorer windows." -ForegroundColor White
-	Write-Host " - To forcefully restart the shell (and Explorer as a whole), hit 9 and Enter.`r`n   This will close all Explorer windows and you may lose your desktop layout. Be careful when using this option." -ForegroundColor White
-	Write-Host " - To go back to the main menu, hit anything else and Enter.`r`n" -ForegroundColor White
-	Write-Host "Graceful shell restart is achieved using Winaero's `"ExitExplorer`" (how did I not know this before?)`r`n"
+	Write-Host "The Windows Explorer shell on a $prodname system works a bit differently. Use this option to restart the shell properly."
+	Write-Host " - To gracefully restart the shell, hit 1 and Enter. This will not close your Explorer windows." -ForegroundColor White
+	Write-Host " - To forcefully restart the shell, hit 8 and Enter. This, again, won't close your windows." -ForegroundColor White
+	Write-Host " - To forcefully restart Explorer as a whole, hit 9 and Enter. This WILL CLOSE all Explorer windows." -ForegroundColor White
+	Write-Host " - To go back to the main menu, hit anything else and Enter." -ForegroundColor White
+	Write-Host "Forcefully restarting may cause your desktop layout to reset. Please be careful.`r`n"
 	Write-Host "> " -n; $back = Read-Host
+	
 	switch ($back) {
-		{$_ -like "1"} {
-			Show-Branding
-			Restart-HikaruShell
-		}
-		{$_ -like "9"} {
-			Show-Branding
-			Restart-HikaruShell -Force
-		}
+		{$_ -like "1"} {Show-Branding; Restart-HikaruShell -Method 0}
+		{$_ -like "8"} {Show-Branding; Restart-HikaruShell -Method 1}
+		{$_ -like "9"} {Show-Branding; Restart-HikaruShell -Method 2}
 	}
 }

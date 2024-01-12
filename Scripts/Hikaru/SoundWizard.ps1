@@ -1,46 +1,30 @@
-# HikaruQM's System Sounds Wizard panel - (c) Bionic Butter
+Param(
+	[Parameter(Mandatory=$true,Position=0)]
+	[int32]$action
+)
 
-$az = [char[]]('a'[0]..'z'[0])
-function Set-HikaruDValue($type,$value) {
-	switch ($type) {
-		{$_ -like "S"} {$typename = "StartupSoundVariant"}
-		{$_ -like "C"} {$typename = "ChargingSoundVariant"}
-		{$_ -like "L"} {$typename = "LowBattSoundVariant"}
-	}
-	Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name $typename -Value $value -Type DWord -Force
-}
 function Show-StateColor($type,$variant) {
-	switch ($type) {
-		{$_ -like "S"} {$typename = "StartupSoundVariant"}
-		{$_ -like "C"} {$typename = "ChargingSoundVariant"}
-		{$_ -like "L"} {$typename = "LowBattSoundVariant"}
-	}
-	$varireg = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").$typename
+	$varireg = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan")."${type}SoundVariant"
 	if ($variant -eq $varireg) {$varicfg = "Black"; $varicbg = "White"} else {$varicfg = "White"; $varicbg = "Black"}
 	return $varicfg, $varicbg
 }
-function Start-PlayOrSetSound($type,$action,$variant) {
-	switch ($type) {
-		{$_ -like "S"} {$typename = "StartupSound"; $typefile = "mp3"; $copy = $false}
-		{$_ -like "C"} {$typename = "Alert_charging_"; $typefile = "wma"; $copy = $true}
-		{$_ -like "L"} {$typename = "Alert_low_battery_"; $typefile = "wav"; $copy = $true}
-	}
-	switch ($action) {
-		0 {
-			Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe" -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\${typename}${variant}.${typefile} -nodisp -hide_banner -autoexit -loglevel quiet"
-		}
-		{$_ -eq 1 -and $copy} {
-			$typenmds = $typename.Substring(0, $typename.Length-1)
-			Copy-Item "$env:SYSTEMDRIVE\Bionic\Hikaru\${typename}${variant}.${typefile}" -Destination "$env:SYSTEMDRIVE\Windows\Media\${typenmds}.${typefile}" -Force
-		}
-	}
+function Start-PlaySound($type,$variant) {
+	Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe" -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\${type}Sound${variant}.mp3 -nodisp -hide_banner -autoexit -loglevel quiet"
 }
-
-function Show-IPrompt($type,$descr,$maxvars) {
+function Set-SystemSound($variantno) {
+	Write-Host "Changing sounds..." -ForegroundColor White
+	reg import "$env:SYSTEMDRIVE\Bionic\Hikaru\SystemSound${variantno}.reg"
+	Start-Sleep -Seconds 1
+}
+function Show-IPrompt($typeno,$maxvars,$typedisp) {
+	switch ($typeno) {
+		1 {$type = "Startup"}
+		2 {$type = "System"}
+	}
 	while ($true) {
 		Show-Branding
-		Write-Host "Choose your desired ${descr}:" -ForegroundColor White
-		Write-Host "Select a sound by typing its number, and play that sound by typing the letter next to that number."
+		Write-Host "Choose your desired ${typedisp}:" -ForegroundColor White
+		Write-Host "Select a variant by typing its number, and preview that variant by typing the letter next to that number."
 		Write-Host "Type '0' to go back.`r`n"
 		for ($v = 1; $v -le $maxvars; $v++) {
 			$l = $az[$v-1]; $vfg, $vbg = Show-StateColor $type $v
@@ -55,33 +39,22 @@ function Show-IPrompt($type,$descr,$maxvars) {
 			$inpcnv = [System.Int32]::TryParse($inp,[ref]$inpint)
 			switch ($true) {
 				{$inpint.GetType().Name -like "Int32" -and $inpvld.Contains($inpint)} {
-					Set-HikaruDValue $type $inpint
-					Start-PlayOrSetSound $type 1 $inpint
+					if ($typeno -eq 2) {Set-SystemSound $inpint}
+					Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "${type}SoundVariant" -Value $inpint -Type DWord -Force
 				}
 				{$az.Contains([char]$inp)} {
 					$inpidx = $az.IndexOf([char]$inp)+1
-					Start-PlayOrSetSound $type 0 $inpidx
+					Start-PlaySound $type $inpidx
 				}
 			}
 		}
 	}
 }
-function Show-SoundMenu {
-	Show-Branding
-	Write-Host "Choose a sound type you want to change:`r`n" -ForegroundColor White
-	Write-Host " 1. Sign-in sound" -ForegroundColor White
-	Write-Host " 2. Charging sound" -ForegroundColor White
-	Write-Host " 3. Low battery sound`r`n" -ForegroundColor White
-	Write-Host " 0. Return to main menu`r`n" -ForegroundColor White
+
+$az = [char[]]('a'[0]..'z'[0])
+switch ($action) {
+	1 {$actioname = "sign-in sound"; $actionmax = 4}
+	2 {$actioname = "system sounds pack"; $actionmax = 3}
 }
 
-while ($true) {
-	Show-SoundMenu
-	Write-Host "> " -n; $snem = Read-Host
-	switch ($snem) {
-		{$_ -like "0"} {exit}
-		{$_ -like "1"} {Show-IPrompt S "sign-in sound" 3}
-		{$_ -like "2"} {Show-IPrompt C "charging sound" 7}
-        {$_ -like "3"} {Show-IPrompt L "low battery sound" 4}
-	}
-}
+Show-IPrompt $action $actionmax $actioname

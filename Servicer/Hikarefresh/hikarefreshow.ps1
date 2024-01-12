@@ -1,87 +1,84 @@
 # Hikaru-chan on-demand updater - (c) Bionic Butter
-$update = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").UpdateAvailable
-if ($update -ne 1) {exit}
 
-$host.UI.RawUI.WindowTitle = "BioniDKU OSTE System Updater"
-function Show-Branding {
-	Clear-Host
-	Write-Host "BioniDKU OSTE System Updater" -ForegroundColor Black -BackgroundColor White
-	Write-Host ' '
+function Show-WindowTitle($nc) {
+	if ($nc -eq 1) {$noclose = " | DO NOT CLOSE THIS WINDOW OR DISCONNECT INTERNET"} else {$noclose = $null}
+	$host.UI.RawUI.WindowTitle = "BioniDKU OSXE System Updater$noclose"
 }
-Show-Branding
-Write-Host "An update is available:" -ForegroundColor White; Write-Host " "
-
-function Start-Hikarefreshing($hv,$rv) {
-	Show-Branding
-	Write-Host "Got it, proceeding to update (Stage 1)" -ForegroundColor White; Write-Host " "
-	Start-Sleep -Seconds 3
-	if ((Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikaru.7z.old") -eq $true) {Remove-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikaru.7z.old" -Force}
-	if ((Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikare.7z.old") -eq $true) {Remove-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikare.7z.old" -Force}
-	if ((Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikaroste.7z.old") -eq $true) {Remove-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikaroste.7z.old" -Force}
-	if ((Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikaru.7z") -eq $true) {Rename-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikaru.7z" -NewName Hikaru.7z.old}
-	if ((Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikare.7z") -eq $true) {Rename-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikare.7z" -NewName Hikare.7z.old}
-	if ((Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikaroste.7z") -eq $true) {Rename-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikaroste.7z" -NewName Hikaroste.7z.old}
+function Show-Branding {
+	. $env:SYSTEMDRIVE\Bionic\Hikarefresh\ServicinFOLD.ps1
+	Clear-Host
+	Write-Host "BioniDKU OSXE System Updater" -ForegroundColor Black -BackgroundColor White
+	Write-Host "Version $servicer - (c) Bionic Butter`r`n" -ForegroundColor White
+}
+function Start-DownloadLoop($file) {
 	while ($true) {
-		Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\wget.exe -Wait -NoNewWindow -ArgumentList "https://github.com/Bionic-OSE/BioniDKU-hikaru3/releases/latest/download/Hikaru.7z" -WorkingDirectory "$env:SYSTEMDRIVE\Bionic"
-		if (Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikaru.7z" -PathType Leaf) {break} else {
+		Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\wget.exe -Wait -NoNewWindow -ArgumentList "https://github.com/Bionic-OSE/BioniDKU-hikaru3/releases/latest/download/${file}" -WorkingDirectory "$PSScriptRoot\Delivery"
+		Show-WindowTitle 1
+		if (Test-Path -Path "$PSScriptRoot\Delivery\${file}" -PathType Leaf) {break} else {
 			Write-Host " "
 			Write-Host -ForegroundColor White "Did the transfer fail?" -n; Write-Host " Retrying..."
+			Start-Sleep -Seconds 1
 		}
 	}
-	Start-Process 7za -Wait -NoNewWindow -ArgumentList "x $env:SYSTEMDRIVE\Bionic\Hikaru.7z -pBioniDKU -o$env:SYSTEMDRIVE\Bionic -aoa"
-	while ($rv -eq 1) {
-		Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\wget.exe -Wait -NoNewWindow -ArgumentList "https://github.com/Bionic-OSE/BioniDKU-hikaru3/releases/latest/download/Hikaroste.7z" -WorkingDirectory "$env:SYSTEMDRIVE\Bionic"
-		if (Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikaroste.7z" -PathType Leaf) {
-			Start-Process powershell -ArgumentList "-Command $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshoste.ps1"
-			break
-		} else {
-			Write-Host " "
-			Write-Host -ForegroundColor White "Did the transfer fail?" -n; Write-Host " Retrying..."
-		}
-	} while ($hv -eq 1) {
-		Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\wget.exe -Wait -NoNewWindow -ArgumentList "https://github.com/Bionic-OSE/BioniDKU-hikaru3/releases/latest/download/Hikare.7z" -WorkingDirectory "$env:SYSTEMDRIVE\Bionic"
-		if (Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Hikare.7z" -PathType Leaf) {
-			Start-Process powershell -ArgumentList "-Command $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshard.ps1"
-			break
-		} else {
-			Write-Host " "
-			Write-Host -ForegroundColor White "Did the transfer fail?" -n; Write-Host " Retrying..."
-		}
+}
+function Start-Hikarefreshing($hv,$rv,$mv) {
+	if ($magicroll) {
+		try {
+			Start-Process powershell -Verb RunAs -ArgumentList "& $env:SYSTEMDRIVE\Bionic\Kirisame\Magicroll\Magicroll.ps1"
+		} catch {return}
+		Start-Process $env:SYSTEMDRIVE\Bionic\Kirisame\Magicroll\Magicdrum.exe
 	}
-	if ($hv -ne 1 -and $rv -ne 1) {
-		& $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshed.ps1
-		Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "UpdateAvailable" -Value 0 -Type DWord -Force
-	}
-	. $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarinfo.ps1
-	Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "Version" -Value "22109.$version" -Force
-	Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "Revision" -Value "23020.$revision" -Force
-	Remove-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikarefresh\HikarinFOLD.ps1" -Force
-	Rename-Item -Path "$env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarinfo.ps1" -NewName HikarinFOLD.ps1
+	Show-WindowTitle 1
+	Show-Branding
+	Write-Host "Got it, proceeding to update" -ForegroundColor White; Write-Host " "
+	Start-Sleep -Seconds 3
+	Write-Host "Updating soft (scripts) layer" -ForegroundColor White
+	if (Test-Path -Path "$PSScriptRoot\Delivery\Scripts.7z.old") {Remove-Item -Path "$PSScriptRoot\Delivery\Scripts.7z.old" -Force}
+	if (Test-Path -Path "$PSScriptRoot\Delivery\Executables.7z.old") {Remove-Item -Path "$PSScriptRoot\Delivery\Executables.7z.old" -Force}
+	if (Test-Path -Path "$PSScriptRoot\Delivery\Vendor.7z.old") {Remove-Item -Path "$PSScriptRoot\Delivery\Vendor.7z.old" -Force}
+	if (Test-Path -Path "$PSScriptRoot\Delivery\Scripts.7z") {Rename-Item -Path "$PSScriptRoot\Delivery\Scripts.7z" -NewName Scripts.7z.old}
+	if (Test-Path -Path "$PSScriptRoot\Delivery\Executables.7z") {Rename-Item -Path "$PSScriptRoot\Delivery\Executables.7z" -NewName Executables.7z.old}
+	if (Test-Path -Path "$PSScriptRoot\Delivery\Vendor.7z") {Rename-Item -Path "$PSScriptRoot\Delivery\Vendor.7z" -NewName Vendor.7z.old}
+	Start-DownloadLoop "Scripts.7z"
+	Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\7za.exe -Wait -NoNewWindow -ArgumentList "x $PSScriptRoot\Delivery\Scripts.7z -pBioniDKU -o$env:SYSTEMDRIVE\Bionic -aoa"
+	if ($rv -eq 1) {
+		Start-DownloadLoop "Vendor.7z"
+		Start-Process powershell -ArgumentList "-Command $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshosxe.ps1"
+	} if ($hv -eq 1) {
+		Start-DownloadLoop "Executables.7z"
+		Start-Process powershell -ArgumentList "-Command $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshard.ps1 $rv $mv"
+	} elseif ($rv -ne 1) {& $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshvi.ps1 $mv}
 	exit
 }
 
+$update = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").UpdateAvailable
+if ($update -ne 1) {exit}
 
-. $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarinfo.ps1
-$versionremote = $version
-$minbaseremote = $minbase
-$revisionremote = $revision
-. $env:SYSTEMDRIVE\Bionic\Hikarefresh\HikarinFOLD.ps1
-Write-Host "Version: " -ForegroundColor White -n; Write-Host "$versionremote" -n; Write-Host " (You have: " -n; Write-Host "$version)"
-. $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarinfo.ps1
-Write-Host "Package size: " -ForegroundColor White -n; Write-Host "$size"
-Write-Host "Update information: " -ForegroundColor White -n; Write-Host "$descr"
-. $env:SYSTEMDRIVE\Bionic\Hikarefresh\HikarinFOLD.ps1
+while ($true) {
+	Show-WindowTitle 0
+	Show-Branding
+	Write-Host "An update is available:`r`n" -ForegroundColor White
+	
+	. $env:SYSTEMDRIVE\Bionic\Hikarefresh\Versinfo.ps1
+	$versionremote = $version
+	$minbaseremote = $minbase
+	$revisionremote = $revision
+	$magicremote = $magicroll
+	Write-Host "Menu System Version: " -ForegroundColor White -n; Write-Host "$versionremote - " -n; Write-Host "Image Revision: " -ForegroundColor White -n; Write-Host "$revisionremote"
+	Write-Host "Update size: " -ForegroundColor White -n; Write-Host "$size"
+	Write-Host "Update information: " -ForegroundColor White -n; Write-Host "$descr"
+	. $env:SYSTEMDRIVE\Bionic\Hikarefresh\VersinFOLD.ps1
 
-Write-Host " "
-Write-Host "Select one of the following actions:" -ForegroundColor White
-Write-Host "1. Accept update" -ForegroundColor White
-Write-Host "0. Cancel and close this window" -ForegroundColor White
-Write-Host "Your selection: " -n; $act = Read-Host
-switch ($act) {
-	{$act -like "0"} {exit}
-	{$act -like "1"} {
-		if ($minbaseremote -notlike $minbase) {$hard = 1} else {$hard = 0}
-		if ($revisionremote -notlike $revision) {$rev = 1} else {$rev = 0}
-		Start-Hikarefreshing $hard $rev
+	Write-Host "`r`nSelect one of the following actions:" -ForegroundColor White
+	Write-Host "1. Accept update" -ForegroundColor White
+	Write-Host "0. Cancel and close this window" -ForegroundColor White
+	Write-Host "> " -n; $act = Read-Host
+	switch ($act) {
+		0 {exit}
+		1 {
+			if ($minbaseremote -notlike $minbase) {$hard = 1} else {$hard = 0}
+			if ($revisionremote -notlike $revision) {$rev = 1} else {$rev = 0}
+			Start-Hikarefreshing $hard $rev $magicremote
+		}
 	}
 }
