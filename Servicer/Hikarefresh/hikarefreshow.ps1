@@ -22,12 +22,13 @@ function Start-DownloadLoop($file) {
 	}
 }
 function Start-Hikarefreshing($hv,$rv,$mv) {
-	if ($magicroll) {
+	if ($mv) {
+		$mvt = '$true'
 		try {
 			Start-Process powershell -Verb RunAs -ArgumentList "& $env:SYSTEMDRIVE\Bionic\Kirisame\Magicroll\Magicroll.ps1"
 		} catch {return}
 		Start-Process $env:SYSTEMDRIVE\Bionic\Kirisame\Magicroll\Magicdrum.exe
-	}
+	} else {$mvt = '$false'}
 	Show-WindowTitle 1
 	Show-Branding
 	Write-Host "Got it, proceeding to update" -ForegroundColor White; Write-Host " "
@@ -43,11 +44,17 @@ function Start-Hikarefreshing($hv,$rv,$mv) {
 	Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\7za.exe -Wait -NoNewWindow -ArgumentList "x $PSScriptRoot\Delivery\Scripts.7z -pBioniDKU -o$env:SYSTEMDRIVE\Bionic -aoa"
 	if ($rv -eq 1) {
 		Start-DownloadLoop "Vendor.7z"
-		Start-Process powershell -ArgumentList "-Command $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshosxe.ps1"
+		while ($true) {
+			try {
+				Write-Host "Please accept the UAC prompt to continue. (If you click No it will ask again, so Yes please)." -ForegroundColor White
+				Start-Process powershell -Verb RunAs -ArgumentList "-Command $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshosxe.ps1 $mvt"
+				break
+			} catch {continue}
+		}
 	} if ($hv -eq 1) {
 		Start-DownloadLoop "Executables.7z"
-		Start-Process powershell -ArgumentList "-Command $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshard.ps1 $rv $mv"
-	} elseif ($rv -ne 1) {& $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshvi.ps1 $mv}
+		Start-Process powershell -ArgumentList "-Command $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshard.ps1 $rv $mvt"
+	} elseif ($hv -ne 1) {& $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshvi.ps1 $mvt}
 	exit
 }
 

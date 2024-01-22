@@ -1,7 +1,7 @@
 # Hikaru-chan version info updater - (c) Bionic Butter
 
 Param(
-	[Parameter(Mandatory=$True,Position=1)]
+	[Parameter(Mandatory=$true,Position=0)]
 	[bool]$mvv
 )
 

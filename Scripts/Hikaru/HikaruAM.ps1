@@ -192,7 +192,8 @@ while ($true) {
 		"4" {Touch-ABRState 1}
 		"5" {Show-Branding; Start-Process pwsh -Verb RunAs -Wait -ArgumentList "$env:SYSTEMDRIVE\Bionic\Kirisame\Magicpass\MagicpassConfig.ps1" -ErrorAction SilentlyContinue}
 		"6" {Start-CommandPrompt}
-		{$_ -eq "*"} {Show-StaticSpinnerInfo}
+		{$_ -eq '*'} {Show-StaticSpinnerInfo}
+		{$_ -eq "Snull"} {Show-Branding; Start-Process pwsh -Verb RunAs -Wait -ArgumentList "$env:SYSTEMDRIVE\Bionic\Hikaru\StandbyWizard.ps1" -ErrorAction SilentlyContinue}
 		"9" {
 			if ($update -eq 1) {
 				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshow.exe
