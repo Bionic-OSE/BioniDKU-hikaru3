@@ -34,7 +34,6 @@ Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\7za.exe -Wait -NoNewWindow -Ar
 
 . $env:SYSTEMDRIVE\Bionic\Hikarefresh\Versinfo.ps1
 Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "Revision" -Value "24010.$version" -Force
-if ($mvm) {$mvmt = '$true'} else {$mvmt = '$false'}
 & $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshvi.ps1 $mvm
 . $env:SYSTEMDRIVE\Bionic\Hikaru\Hikarestart.ps1
 Restart-HikaruShell

@@ -28,8 +28,7 @@ Start-Process $env:TEMP\$tempuid\7za.exe -Wait -NoNewWindow -ArgumentList "x $en
 Remove-Item -Path $env:TEMP\$tempuid -Recurse -Force
 
 if ($rvm -ne 1) {
-	if ($mvm) {$mvmt = '$true'} else {$mvmt = '$false'}
-	& $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshvi.ps1 $mvmt
+	& $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshvi.ps1 $mvm
 	Restart-HikaruShell
 }
 Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\HikaruQML.exe
