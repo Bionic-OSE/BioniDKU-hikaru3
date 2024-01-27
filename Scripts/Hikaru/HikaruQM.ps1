@@ -34,11 +34,12 @@ function Show-Menu {
 	Write-Host " 1. Restart Explorer shell`r`n" -ForegroundColor White
 	Write-Host " Personalize"
 	Write-Host " 2. Change taskbar location" -ForegroundColor White
-	Write-Host " 3. Change system sounds" -ForegroundColor White
-	Write-Host " 4. Open wallpapers collection`r`n" -ForegroundColor White
+	Write-Host " 3. Change system colors" -ForegroundColor White
+	Write-Host " 4. Change system sounds" -ForegroundColor White
+	Write-Host " 5. Open wallpapers collection`r`n" -ForegroundColor White
 	Write-Host " Configure your device"
-	Write-Host " 5. Adjust time settings" -ForegroundColor White
-	Write-Host " 6. Adjust power settings`r`n" -ForegroundColor White
+	Write-Host " 6. Adjust time settings" -ForegroundColor White
+	Write-Host " 7. Adjust power settings`r`n" -ForegroundColor White
 	Write-Host " Others"
 	Write-Host " ${updateopt}0. Close this menu`r`n" -ForegroundColor White
 }
@@ -101,10 +102,15 @@ while ($true) {
 		{$_ -like "0"} {exit}
 		{$_ -like "1"} {Confirm-RestartShell}
 		{$_ -like "2"} {Input-TaskbarLocation}
-		{$_ -like "3"} {& $env:SYSTEMDRIVE\Bionic\Hikaru\SoundWizard.ps1}
-		{$_ -like "4"} {Invoke-Item "$env:SYSTEMDRIVE\Bionic\Wallpapers"}
-		{$_ -like "5"} {Start-RunDllCpl "shell32.dll,Control_RunDLL TimeDate.cpl,,0"}
-		{$_ -like "6"} {Start-RunDllCpl "shell32.dll,Control_RunDLL PowerCfg.cpl @0,/editplan:381b4222-f694-41f0-9685-ff5bb260df2e"}
+		{$_ -like "3"} {Show-Branding; Start-Process pwsh -Verb RunAs -Wait -ArgumentList "$env:SYSTEMDRIVE\Bionic\Hikaru\ColorWizard.ps1" -ErrorAction SilentlyContinue}
+		{$_ -like "4"} {& $env:SYSTEMDRIVE\Bionic\Hikaru\SoundWizard.ps1}
+		{$_ -like "5"} {Invoke-Item "$env:SYSTEMDRIVE\Bionic\Wallpapers"}
+		{$_ -like "6"} {Start-RunDllCpl "shell32.dll,Control_RunDLL TimeDate.cpl,,0"}
+		{$_ -like "7"} {Start-RunDllCpl "shell32.dll,Control_RunDLL PowerCfg.cpl @0,/editplan:381b4222-f694-41f0-9685-ff5bb260df2e"}
+		{$_ -like "nekobox"} {
+			Start-Process powershell -Wait -WindowStyle Hidden -ArgumentList "& $env:SYSTEMDRIVE\Bionic\Kirisame\Nekobox\Updater\Nekodatenn.ps1"
+			& $env:SYSTEMDRIVE\Bionic\Nekobox\Updater\Nekodatedl.ps1
+		}
 		{$_ -like "9"} {
 			if ($update -eq 1) {
 				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshow.exe
