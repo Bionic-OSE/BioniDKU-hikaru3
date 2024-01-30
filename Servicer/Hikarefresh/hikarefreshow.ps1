@@ -76,9 +76,9 @@ while ($true) {
 	Write-Host "Update information: " -ForegroundColor White -n; Write-Host "$descr"
 	. $env:SYSTEMDRIVE\Bionic\Hikarefresh\VersinFOLD.ps1
 
-	Write-Host "`r`nSelect one of the following actions:" -ForegroundColor White
-	Write-Host "1. Accept update" -ForegroundColor White
-	Write-Host "0. Cancel and close this window" -ForegroundColor White
+	Write-Host "`r`n Select an action"
+	Write-Host " 1. Accept update" -ForegroundColor White
+	Write-Host " 0. Cancel and close this window`r`n" -ForegroundColor White
 	Write-Host "> " -n; $act = Read-Host
 	switch ($act) {
 		0 {exit}

@@ -30,8 +30,8 @@ function Show-Menu {
 		default {Write-Host " 2. Supress shell restart animation*`r`n" -ForegroundColor White}
 	}
 	Write-Host " System tasks"
-	Write-Host " 3. Toggle Lockdown (currently " -ForegroundColor White -n; Write-Host "$lock" -ForegroundColor $lockclr -n; Write-Host ")"
-	Write-Host " 4. Toggle Explorer Address bar (currently " -ForegroundColor White -n; Write-Host "$abrs" -ForegroundColor $abrsclr -n; Write-Host ")"
+	Write-Host " 3. Toggle Lockdown (currently " -ForegroundColor White -n; Write-Host "$lock" -ForegroundColor $lockclr -n; Write-Host ")" -ForegroundColor White
+	Write-Host " 4. Toggle Explorer Address bar (currently " -ForegroundColor White -n; Write-Host "$abrs" -ForegroundColor $abrsclr -n; Write-Host ")" -ForegroundColor White
 	Write-Host " 5. Sign-in options" -ForegroundColor White
 	Write-Host " 6. Open a Command Prompt window`r`n" -ForegroundColor White
 	Write-Host " Others"
