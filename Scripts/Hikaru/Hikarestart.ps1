@@ -13,9 +13,31 @@ function Check-SafeMode {
 	}
 }
 function Start-ShellSpinner {
+	[CmdletBinding()]
+	param (
+		[switch]$Overlay
+	)
+	
 	if ((Check-SafeMode) -or $staticspinner) {$n = "S"} else {$n = Get-Random -Minimum 1 -Maximum 6}
-	$global:SuwakoSpinner = Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\ShellSpinner$n.mp4 -fs -alwaysontop -noborder -autoexit" -PassThru
-	Start-Sleep -Seconds 1
+	$SuwakoSpinner = Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\ShellSpinner$n.mp4 -fs -alwaysontop -noborder -autoexit" -PassThru
+	Start-Sleep -Milliseconds 365
+	if ($Overlay) {
+		$SuwakoVerlay = Start-Process $env:SYSTEMDRIVE\Windows\System32\scrnsave.scr -PassThru
+		return $SuwakoSpinner.Id, $SuwakoVerlay.Id
+	} else {return}
+}
+function Discard-ShellSpinnerOverlay { 
+	# Use with Start -Overlay only
+	param (
+		[Parameter(Mandatory=$True,Position=0)]
+		[string]$SuwakoSpinner,
+		[Parameter(Mandatory=$True,Position=1)]
+		[string]$SuwakoVerlay
+	)
+	Clear-Host
+	Wait-Process $SuwakoSpinner
+	Stop-Process $SuwakoVerlay -Force
+	
 }
 function Exit-HikaruShell($type) {
 	$sid = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").ShellID
@@ -69,4 +91,17 @@ function Confirm-RestartShell {
 		{$_ -like "8"} {Show-Branding; Restart-HikaruShell -Method 1}
 		{$_ -like "9"} {Show-Branding; Restart-HikaruShell -Method 2}
 	}
+}
+function Start-UpdateCheckerFM {
+	param (
+		[Parameter(Mandatory=$True,Position=0)]
+		[string]$Menu
+	)
+	Show-Branding
+	Write-Host "The Menu will be closed during the update check and will reopen once it's complete. Please be patient." -ForegroundColor White
+	Start-Sleep -Seconds 5
+	
+	Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "UpdateCheckerLaunchedFrom" -Value "$Menu" -Type String -Force
+	Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefresh.exe
+	exit
 }

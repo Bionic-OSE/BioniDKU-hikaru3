@@ -77,10 +77,10 @@ while ($true) {
 	Write-Host "> " -n; $action = Read-Host
 	
 	switch ($action) {
-		1 {$actioname = "sign-in sound"; $actionmax = 3}
-		2 {$actioname = "system sounds pack"; $actionmax = 3}
-		3 {$actioname = "charging sound"; $actionmax = 6}
-		0 {exit}
+		"1" {$actioname = "sign-in sound"; $actionmax = 4}
+		"2" {$actioname = "system sounds pack"; $actionmax = 3}
+		"3" {$actioname = "charging sound"; $actionmax = 6}
+		"0" {exit}
 	}
 	
 	Show-IPrompt $action $actionmax $actioname

@@ -25,7 +25,7 @@ function Start-Hikarefreshing($hv,$rv,$mv) {
 	if ($mv) {
 		$mvt = '$true'
 		try {
-			Start-Process powershell -Verb RunAs -ArgumentList "& $env:SYSTEMDRIVE\Bionic\Kirisame\Magicroll\Magicroll.ps1"
+			Start-Process powershell -Verb RunAs -ArgumentList "& $env:SYSTEMDRIVE\Bionic\Kirisame\Magicroll\MagicrollLauncher.ps1"
 		} catch {return}
 		Start-Process $env:SYSTEMDRIVE\Bionic\Kirisame\Magicroll\Magicdrum.exe
 	} else {$mvt = '$false'}
@@ -71,11 +71,12 @@ while ($true) {
 	$minbaseremote = $minbase
 	$revisionremote = $revision
 	$magicremote = $magicroll
+	$magicrobremote = $magicrobr # This will be used to compare against the system UBR, not the previous file's
 	Write-Host "Menu System Version: " -ForegroundColor White -n; Write-Host "$versionremote - " -n; Write-Host "Image Revision: " -ForegroundColor White -n; Write-Host "$revisionremote"
 	Write-Host "Update size: " -ForegroundColor White -n; Write-Host "$size"
 	Write-Host "Update information: " -ForegroundColor White -n; Write-Host "$descr"
 	. $env:SYSTEMDRIVE\Bionic\Hikarefresh\VersinFOLD.ps1
-
+	
 	Write-Host "`r`n Select an action"
 	Write-Host " 1. Accept update" -ForegroundColor White
 	Write-Host " 0. Cancel and close this window`r`n" -ForegroundColor White
@@ -85,7 +86,11 @@ while ($true) {
 		1 {
 			if ($minbaseremote -notlike $minbase) {$hard = 1} else {$hard = 0}
 			if ($revisionremote -notlike $revision) {$rev = 1} else {$rev = 0}
-			Start-Hikarefreshing $hard $rev $magicremote
+			if ($magicremote) {
+				$magicubr = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').UBR
+				if ($magicubr -lt $magicrobremote) {$mag = $true} else {$mag = $false}
+			} else {$mag = $false}
+			Start-Hikarefreshing $hard $rev $mag
 		}
 	}
 }

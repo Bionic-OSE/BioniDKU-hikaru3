@@ -17,7 +17,7 @@ function Show-Menu {
 	Show-Branding
 	if ($update -eq 1) {
 		$updateopt = "9. View update`r`n "
-		Write-Host "An update is available, select option 9 for more information`r`n" -ForegroundColor White
+		Write-Host 'An update is available, select option 9 for more information`r`nTo recheck for updates, type "9R" and press Enter' -ForegroundColor White
 	} else {$updateopt = "9. Check for updates`r`n "}
 	Write-Host "Becareful with what you are doing!`r`n" -ForegroundColor Magenta
 	$lock, $lockclr = Get-SystemSwitches
@@ -199,10 +199,11 @@ while ($true) {
 				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshow.exe
 				exit
 			} else {
-				Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name "UpdateCheckerLaunchedFrom" -Value "AM" -Type String -Force
-				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefresh.exe
-				exit
+				Start-UpdateCheckerFM "AM"
 			}
+		"9R" {
+			Start-UpdateCheckerFM "AM"
+		}
 		}
 	}
 }
