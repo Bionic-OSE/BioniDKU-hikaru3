@@ -19,10 +19,13 @@ function Start-ShellSpinner {
 	)
 	
 	if ((Check-SafeMode) -or $staticspinner) {$n = "S"} else {$n = Get-Random -Minimum 1 -Maximum 6}
-	$SuwakoSpinner = Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\ShellSpinner$n.mp4 -fs -alwaysontop -noborder -autoexit" -PassThru
-	Start-Sleep -Milliseconds 365
 	if ($Overlay) {
 		$SuwakoVerlay = Start-Process $env:SYSTEMDRIVE\Windows\System32\scrnsave.scr -PassThru
+		Start-Sleep -Milliseconds 36
+	}
+	$SuwakoSpinner = Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\ShellSpinner$n.mp4 -fs -alwaysontop -autoexit" -PassThru
+	if ($Overlay) {
+		Start-Sleep -Seconds 1
 		return $SuwakoSpinner.Id, $SuwakoVerlay.Id
 	} else {return}
 }

@@ -201,9 +201,9 @@ while ($true) {
 			} else {
 				Start-UpdateCheckerFM "AM"
 			}
+		}
 		"9R" {
 			Start-UpdateCheckerFM "AM"
-		}
 		}
 	}
 }

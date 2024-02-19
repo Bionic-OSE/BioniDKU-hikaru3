@@ -1,6 +1,7 @@
 # Hikaru-chan 3.0 - (c) Bionic Butter
 
 . $env:SYSTEMDRIVE\Bionic\Hikaru\Hikarestart.ps1
+Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\CADBeep.exe"
 $sm = Check-SafeMode
 switch ($sm) {
 	$false {

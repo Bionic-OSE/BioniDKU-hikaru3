@@ -25,7 +25,7 @@ function Start-Hikarefreshing($hv,$rv,$mv) {
 	if ($mv) {
 		$mvt = '$true'
 		try {
-			Start-Process powershell -Verb RunAs -ArgumentList "& $env:SYSTEMDRIVE\Bionic\Kirisame\Magicroll\MagicrollLauncher.ps1"
+			Start-Process powershell -Verb RunAs -ArgumentList "& $env:SYSTEMDRIVE\Bionic\Kirisame\Magicroll\Magicroll.ps1"
 		} catch {return}
 		Start-Process $env:SYSTEMDRIVE\Bionic\Kirisame\Magicroll\Magicdrum.exe
 	} else {$mvt = '$false'}
