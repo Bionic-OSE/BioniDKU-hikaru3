@@ -1,6 +1,10 @@
-# Hikaru-chan 3.0 - (c) Bionic Butter
+# Hikaru-chan 3.1 - (c) Bionic Butter
 
 . $env:SYSTEMDRIVE\Bionic\Hikaru\Hikarestart.ps1
+$hko = Start-Process $env:SYSTEMDRIVE\Windows\System32\scrnsave.scr -PassThru; $hkn = $hko.Id
+Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\PSSuspend64.exe" -WindowStyle Hidden -ArgumentList "$hkn /accepteula /nobanner"
+Start-Sleep -Milliseconds 36
+Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\StartupSpinner.exe"
 Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\CADBeep.exe"
 $sm = Check-SafeMode
 switch ($sm) {
@@ -18,12 +22,14 @@ switch ($sm) {
 		if ($abr -eq 1) {Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\AddressBarRemover2.exe"}
 		Restart-HikaruShell -NoStop -NoSpin -HKBoot
 
+		taskkill /f /pid $hkn
 		taskkill /f /im FFPlay.exe
 		Start-Sleep -Seconds 1
 		Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\HikaruQML.exe"
 		Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe" -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\StartupSound${ssv}.mp3 -nodisp -hide_banner -autoexit -loglevel quiet"
 	}
 	$true {
+		taskkill /f /pid $hkn
 		taskkill /f /im FFPlay.exe
 		Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\HikaruSM.exe"
 	}

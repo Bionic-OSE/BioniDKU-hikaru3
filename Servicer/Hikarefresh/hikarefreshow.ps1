@@ -70,8 +70,7 @@ while ($true) {
 	$versionremote = $version
 	$minbaseremote = $minbase
 	$revisionremote = $revision
-	$magicremote = $magicroll
-	$magicrobremote = $magicrobr # This will be used to compare against the system UBR, not the previous file's
+	$magicremote = $magicroll # This will be compared against the system UBR, not the previous file's
 	Write-Host "Menu System Version: " -ForegroundColor White -n; Write-Host "$versionremote - " -n; Write-Host "Image Revision: " -ForegroundColor White -n; Write-Host "$revisionremote"
 	Write-Host "Update size: " -ForegroundColor White -n; Write-Host "$size"
 	Write-Host "Update information: " -ForegroundColor White -n; Write-Host "$descr"
@@ -86,10 +85,8 @@ while ($true) {
 		1 {
 			if ($minbaseremote -notlike $minbase) {$hard = 1} else {$hard = 0}
 			if ($revisionremote -notlike $revision) {$rev = 1} else {$rev = 0}
-			if ($magicremote) {
-				$magicubr = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').UBR
-				if ($magicubr -lt $magicrobremote) {$mag = $true} else {$mag = $false}
-			} else {$mag = $false}
+			$magicrub = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').UBR
+			if ($magicrub -lt $magicremote) {$mag = $true} else {$mag = $false}
 			Start-Hikarefreshing $hard $rev $mag
 		}
 	}

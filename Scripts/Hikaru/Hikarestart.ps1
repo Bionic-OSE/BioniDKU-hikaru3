@@ -21,12 +21,14 @@ function Start-ShellSpinner {
 	if ((Check-SafeMode) -or $staticspinner) {$n = "S"} else {$n = Get-Random -Minimum 1 -Maximum 6}
 	if ($Overlay) {
 		$SuwakoVerlay = Start-Process $env:SYSTEMDRIVE\Windows\System32\scrnsave.scr -PassThru
+		$SuwakoVerlid = $SuwakoVerlay.Id
+		Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\PSSuspend64.exe" -WindowStyle Hidden -ArgumentList "$SuwakoVerlid /accepteula /nobanner"
 		Start-Sleep -Milliseconds 36
 	}
 	$SuwakoSpinner = Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\ShellSpinner$n.mp4 -fs -alwaysontop -autoexit" -PassThru
 	if ($Overlay) {
 		Start-Sleep -Seconds 1
-		return $SuwakoSpinner.Id, $SuwakoVerlay.Id
+		return $SuwakoSpinner.Id, $SuwakoVerlid
 	} else {return}
 }
 function Discard-ShellSpinnerOverlay { 
@@ -67,10 +69,8 @@ function Restart-HikaruShell {
 	if (-not $NoStop) {Write-Host "Now restarting Explorer..." -ForegroundColor White; Exit-HikaruShell $Method}
 	if ($HKBoot) {if (Check-SafeMode) {Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\HikaruBuildMod.exe"} else {Start-Process powershell -WindowStyle Hidden -ArgumentList "Start-ScheduledTask -TaskName 'BioniDKU Windows Build String Modifier'"}}
 	
-	$build = [System.Environment]::OSVersion.Version | Select-Object -ExpandProperty "Build"
-	if ($build -le 10586) {$hkrbuildkey = "CurrentBuildNumber"} else {$hkrbuildkey = "BuildLab"}
 	while ($true) {
-		$hkrbchkvar = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").$hkrbuildkey
+		$hkrbchkvar = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").BuildLab
 		$hkrbuildose = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").BuildLabOSE
 		if ($hkrbchkvar -eq $hkrbuildose) {break}
 	}
