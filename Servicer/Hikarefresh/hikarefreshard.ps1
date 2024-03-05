@@ -22,6 +22,7 @@ $tempuid = -join ((48..57) + (97..122) | Get-Random -Count 32 | % {[char]$_})
 New-Item -Path $env:TEMP -Name $tempuid -itemType Directory
 Copy-Item -Path  $env:SYSTEMDRIVE\Bionic\Hikarefresh\* -Include 7z*.* -Destination $env:TEMP\$tempuid
 Stop-Process -Name "HikaruQML" -Force -ErrorAction SilentlyContinue
+Stop-Process -Name "CADBeep" -Force -ErrorAction SilentlyContinue
 if (Check-SafeMode) {Stop-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\HikaruBuildMod.exe" -Force} else {Stop-ScheduledTask -TaskName 'BioniDKU Windows Build String Modifier'}
 Start-Sleep -Seconds 3
 Start-Process $env:TEMP\$tempuid\7za.exe -Wait -NoNewWindow -ArgumentList "x $env:SYSTEMDRIVE\Bionic\Hikarefresh\Delivery\Executables.7z -pBioniDKU -o$env:SYSTEMDRIVE\Bionic -aoa"
@@ -32,5 +33,6 @@ if ($rvm -ne 1) {
 	Restart-HikaruShell
 }
 Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\HikaruQML.exe
+Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\CADBeep.exe
 Write-Host " "; Write-Host "Update completed" -ForegroundColor Black -BackgroundColor White
 Start-Sleep -Seconds 5
