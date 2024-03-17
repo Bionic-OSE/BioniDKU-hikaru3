@@ -1,13 +1,5 @@
 # BioniDKU OSXE Modern Standby Configurator - (c) Bionic Butter
 
-function Show-Branding {
-	$prodname = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").ProductName
-	$host.UI.RawUI.WindowTitle = "$prodname Administrative Menu [Administrator]"
-	Clear-Host
-	Write-Host "$prodname Administrative Menu" -ForegroundColor Black -BackgroundColor Magenta
-	Write-Host "Modern Standby configuration module`r`n" -ForegroundColor White
-}
-
 $global:battery = (Get-CimInstance -ClassName Win32_Battery)
 if (-not (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Power\PowerSettings\f15576e8-98b7-4186-b944-eafa664402d9")) {
 	Show-Branding
@@ -72,12 +64,14 @@ $state0kc = "HKLM:\SOFTWARE\Policies\Microsoft\Power\PowerSettings\f15576e8-98b7
 function Show-StandbyMenu {
 	Show-Branding
 	$state0st = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power").PlatformAoAcOverride
-	Write-Host "Select an action:`r`n" -ForegroundColor White
+	Write-Host "Control the Modern Standy feature on your device (EXPERIMENTAL)`r`n"  -ForegroundColor White
+	Write-Host " Main actions:"
 	Write-Host " 1. Toggle Modern Standby (S0) (currently " -ForegroundColor White -n; Show-Disenabled $state0k "PlatformAoAcOverride"; Write-Host ")"
 	if ($state0st -eq 1) {
 		Write-Host " 2. Keep Wi-Fi enabled while in S0, plugged in (currently " -ForegroundColor White -n; Show-Disenabled $state0kc "ACSettingIndex"; Write-Host ")"
 		if ($null -ne $battery) {Write-Host " 3. Keep Wi-Fi enabled while in S0, on battery (currently " -ForegroundColor White -n; Show-Disenabled $state0kc "DCSettingIndex"; Write-Host ")`r`n"}
 	}
+	Write-Host " Module actions:"
 	Write-Host " 4. Deactivate this module" -ForegroundColor White
 	Write-Host " 0. Return to main menu`r`n" -ForegroundColor White
 }

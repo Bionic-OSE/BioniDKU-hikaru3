@@ -5,7 +5,6 @@ $hko = Start-Process $env:SYSTEMDRIVE\Windows\System32\scrnsave.scr -PassThru; $
 Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\PSSuspend64.exe" -WindowStyle Hidden -ArgumentList "$hkn /accepteula /nobanner"
 Start-Sleep -Milliseconds 36
 Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\StartupSpinner.exe"
-Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\CADBeep.exe"
 $sm = Check-SafeMode
 switch ($sm) {
 	$false {
@@ -25,7 +24,7 @@ switch ($sm) {
 		taskkill /f /pid $hkn
 		taskkill /f /im FFPlay.exe
 		Start-Sleep -Seconds 1
-		Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\HikaruQML.exe"
+		Start-ScheduledTask -TaskName 'BioniDKU Hot Keys Service'
 		Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe" -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\StartupSound${ssv}.mp3 -nodisp -hide_banner -autoexit -loglevel quiet"
 	}
 	$true {

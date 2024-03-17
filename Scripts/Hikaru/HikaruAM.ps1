@@ -120,7 +120,9 @@ function Set-ABRValue($value,$switchrunstate) {
 	if ($switchrunstate -eq 1) {
 		switch ($value) {
 			default {Stop-Process -Name "AddressBarRemover2" -Force -ErrorAction SilentlyContinue}
-			1 {Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\AddressBarRemover2.exe"}
+			1 {
+				Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\AdvancedRun.exe -ArgumentList "/run /exefilename $env:SYSTEMDRIVE\Bionic\Hikaru\AddressBarRemover2.exe /runas 9 /runasusername $env:USERNAME"
+			}
 		}
 	}
 }
@@ -156,7 +158,7 @@ function Start-CommandPrompt {
 		$syscmd = $null
 	}
 	if ($isuacon -eq 1) {
-		Write-Host " - Hit 1 and Enter to open a normal Command Prompt." -ForegroundColor White
+		Write-Host " - Hit 1 and Enter to open a non-elevated Command Prompt." -ForegroundColor White
 		Write-Host " - Hit 2 and Enter to open an elevated Command Prompt." -ForegroundColor White
 	} else {
 		Write-Host " - Hit 1 and Enter to open a normal Command Prompt." -ForegroundColor White
@@ -166,8 +168,8 @@ function Start-CommandPrompt {
 	Write-Host ' '
 	Write-Host "> " -n; $back = Read-Host
 	switch ($back) {
-		1 {Start-Process $env:SYSTEMDRIVE\Windows\System32\cmd.exe}
-		2 {Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\AdvancedRun.exe -ArgumentList "/run /exefilename %SystemDrive%\Windows\System32\cmd.exe /runas 3"}
+		1 {Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\AdvancedRun.exe -ArgumentList "/run /exefilename %SystemDrive%\Windows\System32\cmd.exe /runas 9 /runasusername $env:USERNAME"}
+		2 {Start-Process $env:SYSTEMDRIVE\Windows\System32\cmd.exe}
 		3 {Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\AdvancedRun.exe -ArgumentList "/run /exefilename %SystemDrive%\Windows\System32\cmd.exe $syscmd /runas 4"}
 		8 {Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\AdvancedRun.exe -ArgumentList "/run /exefilename %SystemDrive%\Windows\System32\cmd.exe $syscmd /runas 8"}
 		default {return}
@@ -190,10 +192,10 @@ while ($true) {
 		"2" {if (-not (Check-SafeMode)) {$global:staticspinner = $true}}
 		"3" {Switch-Lockdown}
 		"4" {Touch-ABRState 1}
-		"5" {Show-Branding; Start-Process pwsh -Verb RunAs -Wait -ArgumentList "$env:SYSTEMDRIVE\Bionic\Kirisame\Magicpass\MagicpassConfig.ps1" -ErrorAction SilentlyContinue}
+		"5" {& $env:SYSTEMDRIVE\Bionic\Kirisame\Magicpass\MagicpassConfig.ps1}
 		"6" {Start-CommandPrompt}
 		{$_ -eq '*'} {Show-StaticSpinnerInfo}
-		{$_ -eq "Snull"} {Show-Branding; Start-Process pwsh -Verb RunAs -Wait -ArgumentList "$env:SYSTEMDRIVE\Bionic\Hikaru\StandbyWizard.ps1" -ErrorAction SilentlyContinue}
+		{$_ -eq "Snull"} {& $env:SYSTEMDRIVE\Bionic\Hikaru\StandbyWizard.ps1}
 		"9" {
 			if ($update -eq 1) {
 				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshow.exe

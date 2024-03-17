@@ -98,37 +98,6 @@ function Start-RunDllCpl($param) {
 	Start-Sleep -Seconds 1
 	if ($ncp -eq 1) {Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoControlPanel -Value 1 -Type DWord}
 }
-function Show-Nekoptions {
-	$nekins = Test-Path -Path "$env:SYSTEMDRIVE\Bionic\Kirisame\Nekobox\Kernel\Nekoprompt.exe" -PathType Leaf
-	if (-not $nekins) {
-		Start-Process powershell -Wait -WindowStyle Hidden -ArgumentList "& $env:SYSTEMDRIVE\Bionic\Kirisame\Nekobox\Updater\Nekodatenn.ps1"
-		& $env:SYSTEMDRIVE\Bionic\Kirisame\Nekobox\Updater\Nekodatedl.ps1
-		return
-	}
-	
-	while ($true) {
-		if (-not (Test-Path $env:SYSTEMDRIVE\Bionic\Kirisame\Nekobox\Kernel\Nekoptimin.ini -PathType Leaf)) {$min = 1} else {$min = Get-Content -Path $env:SYSTEMDRIVE\Bionic\Kirisame\Nekobox\Kernel\Nekoptimin.ini}
-		if ([int32]$min -eq 1) {$minstate = 'ENABLED'; $minsclr = 'Green'} else {$minstate = 'DISABLED'; $minsclr = 'Red'}
-		
-		Show-Branding
-		Write-Host "Enjoy a curated rotation of music from Nekobox as you hit it with certain keywords.`r`n" -ForegroundColor White
-		Write-Host " Select an action"
-		Write-Host " 1. Toggle automatic minimizing (currently " -ForegroundColor White -n; Write-Host "$minstate" -ForegroundColor $minsclr -n; Write-Host ")" -ForegroundColor White
-		Write-Host " 2. Check for updates" -ForegroundColor White
-		Write-Host " 0. Return to main menu`r`n" -ForegroundColor White
-		
-		Write-Host "> " -n; $nekinp = Read-Host
-		
-		switch ($nekinp) {
-			"1" {if ([int32]$min -eq 1) {0 | Out-File -FilePath $env:SYSTEMDRIVE\Bionic\Kirisame\Nekobox\Kernel\Nekoptimin.ini} else {1 | Out-File -FilePath $env:SYSTEMDRIVE\Bionic\Kirisame\Nekobox\Kernel\Nekoptimin.ini}}
-			"2" {
-				Start-Process powershell -Wait -WindowStyle Hidden -ArgumentList "& $env:SYSTEMDRIVE\Bionic\Kirisame\Nekobox\Updater\Nekodatenn.ps1"
-				& $env:SYSTEMDRIVE\Bionic\Kirisame\Nekobox\Updater\Nekodatedl.ps1
-			}
-			"0" {return}
-		}
-	}
-}
 
 while ($true) {
 	Show-Menu
@@ -141,7 +110,6 @@ while ($true) {
 		"4" {& $env:SYSTEMDRIVE\Bionic\Hikaru\SoundWizard.ps1}
 		"5" {Start-RunDllCpl "shell32.dll,Control_RunDLL TimeDate.cpl,,0"}
 		"6" {Start-RunDllCpl "shell32.dll,Control_RunDLL PowerCfg.cpl @0,/editplan:381b4222-f694-41f0-9685-ff5bb260df2e"}
-		{$_ -like "nekobox"} {Show-Nekoptions}
 		"9" {
 			if ($update -eq 1) {
 				Start-Process $env:SYSTEMDRIVE\Bionic\Hikarefresh\Hikarefreshow.exe

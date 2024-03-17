@@ -74,10 +74,12 @@ function Restart-HikaruShell {
 		$hkrbuildose = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").BuildLabOSE
 		if ($hkrbchkvar -eq $hkrbuildose) {break}
 	}
-	$eid = Start-Process $env:SYSTEMROOT\explorer.exe -PassThru
-	if (-not $NoStop) {Start-Process "$env:SYSTEMDRIVE\Program Files\DesktopInfo\DesktopInfo.exe"}
-	Start-Sleep -Seconds 1
-	Set-ItemProperty "HKCU:\Software\Hikaru-chan" -Name ShellID -Value $eid.Id -Type String -Force
+	if ($HKBoot) {
+		& $env:SYSTEMDRIVE\Bionic\Hikaru\HikarestartasUser.ps1
+	} else {
+		Start-Process $env:SYSTEMDRIVE\Bionic\Hikaru\AdvancedRun.exe -ArgumentList "/run /exefilename $env:SYSTEMDRIVE\Windows\System32\WindowsPowerShell\v1.0\powershell.exe /runas 9 /runasusername $env:USERNAME /commandline `"& $env:SYSTEMDRIVE\Bionic\Hikaru\HikarestartasUser.ps1`""
+	}
+	Start-Sleep -Seconds 2
 }
 function Confirm-RestartShell {
 	Show-Branding

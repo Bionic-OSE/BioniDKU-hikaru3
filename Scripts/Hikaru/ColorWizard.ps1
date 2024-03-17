@@ -1,12 +1,5 @@
 # BioniDKU OSXE System Colors Changer - Powered by SuwakoColors - (c) Bionic Butter
 
-function Show-Branding {
-	$prodname = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").ProductName
-	$host.UI.RawUI.WindowTitle = "$prodname Quick Menu [Administrator]"
-	Clear-Host
-	Write-Host "$prodname Quick Menu" -ForegroundColor Black -BackgroundColor White
-	Write-Host "System Colors changer module" -ForegroundColor White -n; Write-Host " (Powered by SuwakoColors)`r`n"
-}
 Import-Module -DisableNameChecking $env:SYSTEMDRIVE\Bionic\Hikaru\ColorWizard.psm1
 
 while ($true) {
