@@ -2,6 +2,7 @@
 
 . $env:SYSTEMDRIVE\Bionic\Hikaru\Hikarestart.ps1
 $update = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").UpdateAvailable
+$unsealed = (Get-ItemProperty -Path "HKCU:\Software\Hikaru-chan").Unsealed
 $global:staticspinner = $false
 
 Start-Process "$env:SYSTEMDRIVE\Bionic\Hikaru\FFPlay.exe" -WindowStyle Hidden -ArgumentList "-i $env:SYSTEMDRIVE\Bionic\Hikaru\HikaruAMBeep.mp3 -nodisp -hide_banner -autoexit -loglevel quiet"
@@ -30,11 +31,12 @@ function Show-Menu {
 		default {Write-Host " 2. Supress shell restart animation*`r`n" -ForegroundColor White}
 	}
 	Write-Host " System tasks"
-	Write-Host " 3. Toggle Lockdown (currently " -ForegroundColor White -n; Write-Host "$lock" -ForegroundColor $lockclr -n; Write-Host ")" -ForegroundColor White
+	if ($unsealed -eq 1) {Write-Host " 3. Toggle Lockdown" -ForegroundColor DarkGray}  else {Write-Host " 3. Toggle Lockdown (currently " -ForegroundColor White -n; Write-Host "$lock" -ForegroundColor $lockclr -n; Write-Host ")" -ForegroundColor White}
 	Write-Host " 4. Toggle Explorer Address bar (currently " -ForegroundColor White -n; Write-Host "$abrs" -ForegroundColor $abrsclr -n; Write-Host ")" -ForegroundColor White
 	Write-Host " 5. Sign-in options" -ForegroundColor White
 	Write-Host " 6. Open a Command Prompt window`r`n" -ForegroundColor White
 	Write-Host " Others"
+	if ($lock -eq 'DISABLED' -and $unsealed -ne 1) {Write-Host " 7. Reveal the operating system" -ForegroundColor White}
 	Write-Host " ${updateopt}0. Close this menu`r`n" -ForegroundColor White
 }
 function Get-SystemSwitches {
@@ -61,6 +63,17 @@ function Show-Magicauth { # Not the best security practice, but it's enough to p
 	# From: https://stackoverflow.com/questions/38901752/verify-passwords-match-in-windows-powershell
 	$lsep = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($lsec))
 	return ($lsep -eq $lsei)
+}
+function Start-Revealer {
+	Show-Branding
+	Write-Host "Is this your first device to be revealed?" -ForegroundColor White
+	Write-Host "If it is, type 1, otherwise type 2 so you don't have to watch the same long reveal video again."
+	Write-Host "`r`nAfter entering either numbers, a double-confirmation dialog will appear before the actual reveal happens. Good luck!"
+	Write-Host "Type anything else to return."
+	Write-Host "> " -n; $rtp = Read-Host
+	
+	if ($rtp -eq 1 -or $rtp -eq 2) {Set-ItemProperty -Path "HKCU:\Software\Hikaru-chan" -Name UnsealedType -Value $rtp -Type DWord -Force} else {return}
+	Start-Process powershell.exe -WindowStyle Hidden -ArgumentList "-Command `"$env:SYSTEMDRIVE\Bionic\Reveal\Dialog.ps1`""; exit
 }
 function Switch-ShellState($action) {
 	gpupdate.exe
@@ -190,10 +203,11 @@ while ($true) {
 		"0" {exit}
 		"1" {Confirm-RestartShell}
 		"2" {if (-not (Check-SafeMode)) {$global:staticspinner = $true}}
-		"3" {Switch-Lockdown}
+		"3" {if ($unsealed -ne 1) {Switch-Lockdown}}
 		"4" {Touch-ABRState 1}
 		"5" {& $env:SYSTEMDRIVE\Bionic\Kirisame\Magicpass\MagicpassConfig.ps1}
 		"6" {Start-CommandPrompt}
+		"7" {Start-Revealer}
 		{$_ -eq '*'} {Show-StaticSpinnerInfo}
 		{$_ -eq "Snull"} {& $env:SYSTEMDRIVE\Bionic\Hikaru\StandbyWizard.ps1}
 		"9" {
