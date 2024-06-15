@@ -97,11 +97,12 @@ function Switch-Lockdown {
 		if (-not $lpwd) {return}
 		
 		Show-Branding
-		Write-Host "This option will disable all application restrictions, unblock Settings, Control Panel, the taskbar context menu, `r`nand unhide the Windows version from Command Prompt. Use this option if you are the challenge host and want to do `r`nmaintenance on this system without having to go through Group Policy and disable the restrictions one by one."
-		Write-Host "Disabling Lockdown means " -n; Write-Host "the RESPONSIBILTY of keeping the secrets will be YOURS " -ForegroundColor White -n; Write-Host "until you enable them again. If you `r`ncan securely proceed, hit 1 and Enter to disable, or hit anything and Enter to go back."
+		Write-Host "This option will disable all application restrictions, unblock Settings, Control Panel, the taskbar context menu, `r`nand unhide the Windows version from Command Prompt. Use this option if you are the challenge host and want to do `r`nmaintenance on this system without having to go through Group Policy and disable the restrictions one by one, or you `r`nare the contestant preparing to reveal this IDKU."
 		Write-Host "The Explorer shell will be restarted to apply changes. Your files windows will not be closed.`r`n"
+		Write-Host "If the time has not come yet, please " -n; Write-Host "BE CAREFUL with what you are about to do!" -ForegroundColor White
+		Write-Host 'ARE SURE YOU WANT TO DISABLE LOCKDOWN? Answer "yes" to disable, or anything else to go back.' -ForegroundColor Yellow
 		Write-Host "> " -n; $back = Read-Host
-		if ($back -ne 1) {return}
+		if ($back -notlike "yes") {return}
 
 		Show-Branding
 		Write-Host "Disabling Lockdown and applying changes..." -ForegroundColor White
@@ -113,10 +114,10 @@ function Switch-Lockdown {
 		Switch-ShellState 1
 	} else {
 		Show-Branding
-		Write-Host "Reenable Lockdown? Hit 1 and Enter to enable, or hit anything and Enter to go back."
+		Write-Host 'Reenable Lockdown? Answer "yes" and Enter to enable, or anything else to go back.'
 		Write-Host "The Explorer shell will be restarted to apply changes. Your files windows will not be closed.`r`n"
 		Write-Host "> " -n; $back = Read-Host
-		if ($back -ne 1) {return}
+		if ($back -notlike "yes") {return}
 		
 		Show-Branding
 		Write-Host "Enabling Lockdown and applying changes..." -ForegroundColor White
@@ -167,7 +168,7 @@ function Start-CommandPrompt {
 	if ($lock -eq 'ENABLED') {
 		$syscmd = "/commandline `"/k cls`""
 	} else {
-		Write-Host "The build number will be " -n; Write-Host "IMMEDIATELY SHOWN" -ForegroundColor Yellow -n; Write-Host " upon launching this program. It is then " -n; Write-Host "YOUR RESPONSIBILTY to keep `r`nthe secrets!" -ForegroundColor Yellow -n; Write-Host " If you can securely proceed:" -ForegroundColor White
+		if ($unsealed -ne 1) {Write-Host "The build number will be " -n; Write-Host "IMMEDIATELY SHOWN" -ForegroundColor Yellow -n; Write-Host " upon launching this program. It is then " -n; Write-Host "YOUR RESPONSIBILTY to keep `r`nthe secrets!" -ForegroundColor Yellow -n; Write-Host " If you can securely proceed:" -ForegroundColor White}
 		$syscmd = $null
 	}
 	if ($isuacon -eq 1) {
